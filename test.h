@@ -1,8 +1,9 @@
-#include <iostream>
-#include "test.h"
+#ifndef test
+#define test
 
-int main (){
+#include <iostream>
+
+void hello_my_tmalloc() {
     std::cout << "hello my tmalloc " << std::endl;
-    hello_my_tmalloc();
-    return 0;
 }
+#endif 
