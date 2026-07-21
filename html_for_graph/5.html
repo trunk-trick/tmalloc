@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Figure: glibc malloc_chunk Layout</title>
+    <!-- Scientific publication font integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 50px auto;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Figure Outer Frame */
+        .figure-container {
+            border: 1px dashed #ccc; 
+            padding: 50px 40px;
+            background-color: #fafafa;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+
+        /* Structural Layout Container */
+        .diagram-wrapper {
+            position: relative;
+            width: 520px;
+            height: 240px;
+            margin: 20px auto;
+        }
+
+        /* Vertical Memory Stack */
+        .memory-stack {
+            position: absolute;
+            left: 160px;
+            top: 0;
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Base Block Formatting */
+        .mem-block {
+            border: 1.5pt solid #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10.5pt;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Metadata Header Fields */
+        .metadata {
+            height: 45px;
+            background-color: #f4f4f6; /* Subtle slate gray for metadata */
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            border-bottom: none; /* Collapse inner borders */
+        }
+
+        /* User Data Block */
+        .payload {
+            height: 110px;
+            background-color: #ffffff; /* Stark white for user memory space */
+            border-top: 1.5pt solid #000000; /* Re-establish solid boundary */
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* Custom styling to close the gap cleanly */
+        .mchunk-size-block {
+            border-bottom: 1.5pt solid #000000;
+        }
+
+        /* --- Pointer & Annotations --- */
+
+        /* Users' Pointer (Left Side) */
+        .user-pointer-line {
+            position: absolute;
+            left: 0px;
+            width: 152px;
+            top: 90px; /* Aligns exactly with the mchunk_size | User Data boundary */
+            display: flex;
+            align-items: center;
+            transform: translateY(-50%);
+        }
+
+        .pointer-label {
+            font-family: 'STIX Two Text', serif;
+            font-size: 10.5pt;
+            font-weight: bold;
+            text-align: right;
+            width: 100px;
+            padding-right: 8px;
+            line-height: 1.1;
+        }
+
+        .arrow-shaft {
+            height: 1.5pt;
+            background-color: #000000;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .arrow-shaft::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid #000000;
+        }
+
+        /* Offsets & Annotations (Right Side) */
+        .offset-annotation {
+            position: absolute;
+            left: 395px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 200px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9.5pt;
+            color: #444;
+        }
+
+        .offset-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .offset-item::before {
+            content: '←';
+            margin-right: 6px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        /* Table Caption Styling */
+        .figure-caption {
+            width: 520px;
+            margin: 30px auto 0 auto;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            text-align: justify;
+            border-top: 0.75pt solid #ccc;
+            padding-top: 12px;
+        }
+
+        .figure-caption strong {
+            font-variant: small-caps;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="figure-container">
+    
+    <div class="diagram-wrapper">
+        
+        <!-- Users' Pointer Aligned exactly on the Metadata/User boundary -->
+        <div class="user-pointer-line">
+            <span class="pointer-label">users' pointer<br><span style="font-size:8.5pt; font-weight:normal; font-family:'Courier New';">(mem)</span></span>
+            <div class="arrow-shaft"></div>
+        </div>
+
+        <!-- Vertical Memory Blocks -->
+        <div class="memory-stack">
+            <!-- mchunk_prev_size -->
+            <div class="mem-block metadata">mchunk_prev_size</div>
+            
+            <!-- mchunk_size -->
+            <div class="mem-block metadata mchunk-size-block">mchunk_size</div>
+            
+            <!-- User Data Segment -->
+            <div class="mem-block payload">
+                <div>users data ...</div>
+            </div>
+        </div>
+
+        <!-- Architectural Offsets (assuming 64-bit architecture) -->
+        <div class="offset-annotation">
+            <div class="offset-item" style="top: 0px; position: absolute;">chunk pointer <span style="font-style: italic;">(mchunkptr)</span></div>
+            <div class="offset-item" style="top: 90px; position: absolute;">chunk + 2 * SIZE_SZ</div>
+            <div class="offset-item" style="top: 180px; position: absolute;">end of chunk</div>
+        </div>
+
+    </div>
+
+    <!-- Academic Figure Caption -->
+    <div class="figure-caption">
+        <strong>Fig. 3.</strong> Memory layout of an allocated <tt>malloc_chunk</tt> structure in glibc. 
+        The metadata fields (<tt>mchunk_prev_size</tt> and <tt>mchunk_size</tt>) precede the actual memory space allocated for user data. 
+        The pointer returned to the application program (<tt>users' pointer</tt>) points precisely to the start of the user data segment, abstracting away internal allocation headers.
+    </div>
+
+</div>
+
+</body>
+</html>

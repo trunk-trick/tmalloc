@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Figure: glibc fastbinsY Single-Linked List Structure</title>
+    <!-- 引入学术出版标准的 STIX Two 字体（完美兼容 LaTeX 衬线体/数学公式风格） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            /* 标准 LaTeX 论文默认字体集 */
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 50px auto;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 论文插图外部容器 */
+        .figure-container {
+            border: 1px dashed #ccc; /* 方便排版预览的边框，出版时可去掉 */
+            padding: 40px 30px;
+            background-color: #fafafa;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+
+        /* 绘图主画布区 */
+        .diagram-canvas {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 920px;
+            position: relative;
+        }
+
+        /* 顶部数组标签 */
+        .array-title {
+            font-family: "Courier New", Courier, monospace;
+            font-weight: bold;
+            font-size: 13pt;
+            margin-bottom: 8px;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        /* 每一行（链表） */
+        .bin-row {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 索引盒 (fastbinsY[i]) */
+        .index-box {
+            width: 110px;
+            height: 54px;
+            border: 1.5pt solid #000000;
+            background-color: #f0f4f8; /* 浅雅色调区分索引和堆块 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 10.5pt;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .index-box .idx-label {
+            font-family: 'STIX Two Text', serif;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .index-box .ptr-type {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* 指向连接箭头组件 */
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90px;
+            position: relative;
+        }
+
+        .connector .arrow-line {
+            width: 100%;
+            height: 1.5pt;
+            background-color: #000000;
+            position: relative;
+        }
+
+        /* 箭头尖端 */
+        .connector .arrow-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid #000000;
+        }
+
+        /* 箭头上的说明文字 "points to" */
+        .connector .arrow-text {
+            position: absolute;
+            top: -16px;
+            font-size: 8pt;
+            background: #fafafa;
+            padding: 0 4px;
+            color: #444;
+            font-style: italic;
+        }
+
+        /* chunk 节点 */
+        .chunk-node {
+            width: 100px;
+            height: 42px;
+            border: 1.5pt solid #000000;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10.5pt;
+            font-weight: bold;
+            font-family: 'STIX Two Text', serif;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+        }
+
+        /* 链表末尾的 NULL 终端 */
+        .null-node {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 11pt;
+            color: #777777;
+            padding: 0 10px;
+        }
+
+        /* --- 学术论文标准的图注 (Figure Caption) --- */
+        .figure-caption {
+            width: 920px;
+            margin-top: 25px;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            text-align: justify;
+            border-top: 0.75pt solid #ccc;
+            padding-top: 12px;
+        }
+
+        .figure-caption strong {
+            font-variant: small-caps; /* 经典学术期刊中的 Fig. 格式 */
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="figure-container">
+    
+    <!-- 主图区域 -->
+    <div class="diagram-canvas">
+        
+        <!-- 数组名称 -->
+        <div class="array-title">fastbinsY</div>
+
+        <!-- 链表行 0 -->
+        <div class="bin-row">
+            <div class="index-box">
+                <div class="idx-label">idx = 0</div>
+                <div class="ptr-type">mchunkptr</div>
+            </div>
+            <div class="connector">
+                <span class="arrow-text">points to</span>
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk A1</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk A2</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk A3</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="null-node">NULL</div>
+        </div>
+
+        <!-- 链表行 1 -->
+        <div class="bin-row">
+            <div class="index-box">
+                <div class="idx-label">idx = 1</div>
+                <div class="ptr-type">mchunkptr</div>
+            </div>
+            <div class="connector">
+                <span class="arrow-text">points to</span>
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk B1</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk B2</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="null-node">NULL</div>
+        </div>
+
+        <!-- 链表行 2 -->
+        <div class="bin-row">
+            <div class="index-box">
+                <div class="idx-label">idx = 2</div>
+                <div class="ptr-type">mchunkptr</div>
+            </div>
+            <div class="connector">
+                <span class="arrow-text">points to</span>
+                <div class="arrow-line"></div>
+            </div>
+            <div class="chunk-node">Chunk C1</div>
+            <div class="connector">
+                <div class="arrow-line"></div>
+            </div>
+            <div class="null-node">NULL</div>
+        </div>
+
+    </div>
+
+    <!-- 学术图注说明 -->
+    <div class="figure-caption">
+        <strong>Fig. 1.</strong> Structural layout of the glibc memory allocator's <tt>fastbinsY</tt> array. 
+        Each entry within <tt>fastbinsY[i]</tt> acts as a singly-linked list header, storing pointers to freed chunks of specific sizes (ranging from <span style="font-style: italic;">MINSIZE</span> upwards with alignment constraints). Chunks are maintained in LIFO (Last-In, First-Out) order, terminating with a null pointer to designate the end of the bin segment.
+    </div>
+
+</div>
+
+</body>
+</html>

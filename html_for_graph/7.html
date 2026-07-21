@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Figure: glibc Bins Array Mapping</title>
+    <!-- Scientific publication font integration -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 50px auto;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Figure Outer Frame */
+        .figure-container {
+            border: 1px dashed #ccc; 
+            padding: 40px 50px;
+            background-color: #fafafa;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+
+        /* Main Diagram Horizontal Row */
+        .diagram-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 24px;
+            margin: 20px 0;
+        }
+
+        /* Standard Bin Pair Column Container */
+        .bin-pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 150px;
+        }
+
+        /* Array Header Box */
+        .array-header {
+            display: flex;
+            width: 100%;
+        }
+
+        /* Individual Cell in the bins Array */
+        .array-cell {
+            flex: 1;
+            height: 38px;
+            border: 1.5pt solid #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 9.5pt;
+            background-color: #f0f4f8; /* Light slate blue for abstract array indexing */
+            box-sizing: border-box;
+        }
+
+        /* Prevent double borders between adjacent elements */
+        .array-cell + .array-cell {
+            border-left: none;
+        }
+
+        /* Vector Bracket Path Styling */
+        .bracket-svg {
+            display: block;
+            width: 100%;
+            height: 35px;
+        }
+
+        .bracket-path {
+            fill: none;
+            stroke: #000000;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+        }
+
+        .bracket-text {
+            font-family: 'STIX Two Text', serif;
+            font-weight: bold;
+            font-size: 11pt;
+            fill: #000000;
+        }
+
+        /* Sub-field Pointer Names (fd / bk) */
+        .pointer-fields {
+            display: flex;
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .field-label {
+            flex: 1;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 10pt;
+            color: #000000;
+        }
+
+        /* Ellipsis Separator Spacer */
+        .ellipsis-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 38px; /* Match the height of the array-cell */
+        }
+
+        .ellipsis-text {
+            font-family: 'STIX Two Text', serif;
+            font-weight: bold;
+            font-size: 16pt;
+            letter-spacing: 2px;
+            color: #555555;
+        }
+
+        /* Simple Figure Caption */
+        .figure-caption {
+            width: 620px;
+            margin: 25px auto 0 auto;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            text-align: justify;
+            border-top: 0.75pt solid #ccc;
+            padding-top: 12px;
+        }
+
+        .figure-caption strong {
+            font-variant: small-caps;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="figure-container">
+    
+    <div class="diagram-row">
+        
+        <!-- BIN 1 UNIT -->
+        <div class="bin-pair">
+            <div class="array-header">
+                <div class="array-cell">bins[0]</div>
+                <div class="array-cell">bins[1]</div>
+            </div>
+            
+            <svg class="bracket-svg" viewBox="0 0 150 35">
+                <path class="bracket-path" d="M 37.5,0 L 37.5,15 L 56,15" />
+                <path class="bracket-path" d="M 112.5,0 L 112.5,15 L 94,15" />
+                <text class="bracket-text" x="75" y="19" text-anchor="middle">bin1</text>
+            </svg>
+            
+            <div class="pointer-fields">
+                <div class="field-label">fd</div>
+                <div class="field-label">bk</div>
+            </div>
+        </div>
+
+        <!-- BIN 2 UNIT -->
+        <div class="bin-pair">
+            <div class="array-header">
+                <div class="array-cell">bins[2]</div>
+                <div class="array-cell">bins[3]</div>
+            </div>
+            
+            <svg class="bracket-svg" viewBox="0 0 150 35">
+                <path class="bracket-path" d="M 37.5,0 L 37.5,15 L 56,15" />
+                <path class="bracket-path" d="M 112.5,0 L 112.5,15 L 94,15" />
+                <text class="bracket-text" x="75" y="19" text-anchor="middle">bin2</text>
+            </svg>
+            
+            <div class="pointer-fields">
+                <div class="field-label">fd</div>
+                <div class="field-label">bk</div>
+            </div>
+        </div>
+
+        <!-- ELLIPSIS SPIDER -->
+        <div class="ellipsis-container">
+            <span class="ellipsis-text">...</span>
+        </div>
+
+        <!-- BIN 127 UNIT -->
+        <div class="bin-pair">
+            <div class="array-header">
+                <div class="array-cell">bins[252]</div>
+                <div class="array-cell">bins[253]</div>
+            </div>
+            
+            <svg class="bracket-svg" viewBox="0 0 150 35">
+                <path class="bracket-path" d="M 37.5,0 L 37.5,15 L 50,15" />
+                <path class="bracket-path" d="M 112.5,0 L 112.5,15 L 100,15" />
+                <text class="bracket-text" x="75" y="19" text-anchor="middle">bin127</text>
+            </svg>
+            
+            <div class="pointer-fields">
+                <div class="field-label">fd</div>
+                <div class="field-label">bk</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Minimal Figure Caption -->
+    <div class="figure-caption">
+        <strong>Fig. 5.</strong> Conceptual mapping of the glibc <tt>bins</tt> pointer array in <tt>malloc_state</tt>. Adjacent pairs of element indices logically combine to construct doubly-linked bin headers, representing the forward (<tt>fd</tt>) and backward (<tt>bk</tt>) traversal anchors respectively.
+    </div>
+
+</div>
+
+</body>
+</html>

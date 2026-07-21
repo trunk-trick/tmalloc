@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ptmalloc Chunk 结构图</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .canvas-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="canvas-container">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 285" width="1180" height="285">
+        <defs>
+            <style class="style-fonts">
+                @font-face { 
+                    font-family: 'Comic Shanns'; 
+                    src: url(data:font/woff2;base64,d09GMgABAAAAAA/UAAsAAAAAHSgAAA+HAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmAAgQQRCAqfYJozCzQAATYCJAM2BCAFlRgHIBuGGSMR5mw1HFG5SMn+6sA2RLNDe4e1bE8rNB025jVCu7BjBd9cXoj5Q5yG8YaResNpoRoWIySZvZ7m/H3v4ueRyx0kDhQKDdo6EDw0SKjSOhVToE47v1B1gX6nDlVqGotf+3GZSq54K7N1pz458S/iCTx/6f8AQID77ocltrEfaICk9iYcHYKxv/b0ECFthbw/p3uGi1HvUHuozs2WKQ0QVuhiGf3Pfyfh6ev29t/JgUEaIDde2h5cqt5/No6FQYzh/WWOYbFgSGPBNTo2lWIFrXgFpFa//GX/ku0aQZIIixWpGXaqq2vq4YdkQ07CgI4K4VDoUwJ/JrCrLXL50sKDtq/XpVpK/24I8sg4Ej5ZTx5ufgIIHIJKQQ6AS3A+AHjvV6OOAIiBC11AQP+++EPgBhuMwW/8Crgkm43jAGDuStIzuMRuEzOYIax6saN9qQwGfVcEDghQgQ3CwQWdoDv0hr4wAAbBCBjj92vtoYPKAujFDvk7/Q/95YFNNlpvnTVWW2X5EFzEkR9CHEATMIEQOCufC6DoDwCUon2L6BKw4Zb0hnfzrd+FatfumciJtQyxQnpdSz26eZYnJjAnLy8tPLlRQVJVa90aS2OSkrO3O+IEYFzo9vyyFzLHfqXUAXEGMN2isyhzxCNj0hKpdRCvLu4KnUSZIt68nPiZUrF3znrb/FnR8lxIYamDWqqif+p0oLiJ63GH3VpY8ZO1MMk6OGR9C7DC43xeTR+04RmhTrtShaaPTuzPrFbaI9pBvBogofIaFziUjy1VIeik7JQo7knwe0G6+yGFe/bYkNvcV+wvhwKMWzqJwZI3iRCs37XbuX35lEViTi/eb/miMWtVu4XyvyOyXnRb/pZRCoBMpbwGOpCu997a6wxZrPWpRjFX7qG+YWRhh7h3tBaKSWtvCr3e5/8xIJoyC9W5YUzneDTTKhL9WpLMuaS9BWgGDAyt1EtCBk/Mnc1scHLvRsk0fgQSxBd3//rarVA4xFC7vc/JOOhHCzsVJGZ13CI6dBnI7F+XL4nQYok5OqGLSV79DKfX18RB9z6jdel4nS4fSCreTBVVzs2ExRzNIhBydi+o1EDPK7fm5lxBhxJKH/Zr90LFZ/0R0HAi/hxWb7H32noNpGzhsOnm4MC33d3TVpc5n56dNG1aZm/OHfxl09b++gfd3l+O/JUxeePdtuDdUMZRmG5EOD70e1wTybW048kcqb4Ed1cKJoa4s6IAgJQKtnF1FiWtiN5Wa/H5fDz8051qHXT3rQdxwIEAhPv6L84XRupxnJkBcDabfDBvR+6AhPpYnG24vqfUCUSr1z6admsQnLUlN3pRArVcp15XE67Oe6EH3602pBK40cTYjqfd0ka4YQtHPvqp2jKj4k7bwQheaGRAai2PC5ntzAsJravJtcbbQy1Zy+WxRXRZ1TlaS0rYIquLmwcf5ux3YyVHd1UbItmBAdhB7OO5Wpxr2KIVR/l+fmWdB4AN5QNMFDv2Dpba3I4Z8aMZ/ujVXd4AJbN9qyv/D1EMsWdgAFB91oDRFDIBJecujR6GQsP89fsN++9flxZDoX7ZvZGeK1gXt64QaMOS91vXOjUlS4xFS0lypmEpKhKKLAu2kjMPG1bOFJrO3+fsYpi36Iwl/ax9FWpg+e0RjY5/vVT6Wle0yXPosOPIiR0BK8qZgjDlFzMtgp9+t3n5ZnJmRfjSIktRecCOdWAzLL4v3Qco3NR1fQXz1m3YIGyQ+bsOm+/fb1lR0XrHYSUqfUfzoqWJWyuyZvi9knobfi0s5CEsJTMz7IYzr36b29ekYmbd9QY86iZPeolQlrmAJa3Jrp0pClzrXKAp0QcxW7IFLdhKbqy/sQwn1i9eDPegEO63JKfQ9D/RjxeNifTFxrcPLVZkRbRTdeW7Pj0+3v2/ndwmCbNZadbvsQPzVRmEN1PKtPQOzf4tcL4Abi5sGkPN5QJ8nPB7jmvcBqp44B/I/IFjf8/y2dmCtI20/+8ef/wp31XVtV2EIiu0OL69LxZm7eqjaM7v0UkDtQwnYGK3W8a7hNOreBkRdGEypezcvNOFlz/KF2yM9SmoKRe6CApm+RmjPficvkDBLP6fYodM1MqiYoGkjKUtpH6zWYKwbZinlcvLenRb+Ft7tcuI6AsbBoWoSChoXJkOblcYKbAaBRgvlLOV5RUCEDJOGVYmPqfYCe31BHGrkGEsUB/yOXHCKfaEtLI0EwSpqZaetdyIwEC55WZ9RiPVKYxszrhGoyCPrhzZDXIg6hnNVkuGjjB4CIRJVSw9rp0RwfOF4xKDg9Qqkso/GKDipl3lMGbLv0ywdLD2yGxcrzA5+IGYamsfMcbj6WzukR7s+CbMyaQEcXG9VcOdRH5+pMuqi71hzYavchWR4McNUpo6QlzpYrH4xy2MmIpqewLkR7StA23QKtI6tAYjrqrKIkByvLcszRhdmekIvHygzoNSTAT962+WBlNRy8HBqTG2XNvKsT9eQPnQBJLJ3/F5LqkKgpaXuEJ177cn59RWqlgQvTfzFArXtrcdTzkLlOTczxOClMzcAVqvRxkul1dmOL7sW3YSBPjCR3myO4TExGY3hV8Wx6BHnRWGleciw181DMmyN07m2QQZQRAR5x54vfZKl0cohKZ4tOR8ytUcnjHJ5CrZQFyIJ4SplakjUqpM5omHE8cLolLFAcdwLlFZC+HdlDk+l2aaYPiv/twLB9rJZO0hNjnaPdAdZ09Ibu2IMcTUTCiJmPk1rlvnDJvXnGEc1edVNEGI6T20zbTttTKC2finj5Cz13J1q1uvCJ9zIs2YYra188PkLlJhDaRH6zXfeYT5q5v1BKEm0nELUeQpVQDq3h3ageYgjxH/51+BtR3QCto57a2b5Ni2lWrcTppKiMutb339mkeo5rsbayTC9AbGlGqy3aYXwhpiTEXd1JjMY826vAJEaoLSDQoF861ai3DliwcCQcSj7adgb6z0VMfvk8zQBvVA/cGV1mT3uekOHlDN4l6bYUl2ehWd2CI+95cSDiw4SBPEO9i5RcEq6+TGxCe7C1Ae8pJJdPNQ05ZrHMLcS9LaiB4USWS1cViFgktFShUl0RGabMnyrYpHuHKyhh2DFWK9FEVTkjF95zDi/9osyCHv8YA3tyvzm8ijCCFJcISnGU2BvcFHEM79h6JSMsIracqc9zAdUlV0oPHyVa7mDmUm1qJ9rUpcWXllGvAiL/jqmzBY3bfKJrsbBSjkPLvWpLN7bFPgxB9muvTc701/I+TyNY/6i4jQN4npdDZKRm3822pnZARG3NbQFKfL3ySsUFBUhDqPxEh6foHFuKbQQyuxXGiQqvSSjELHXzls0kBGfCKlCfE9W0epi1tu2Tw9VJej5hxaTmx0K5vz5uWHeta03qT+b2ELuYygTYnBQ5TklO+NvFN7S1XNmJ9a8uD8PxVnDuUIpc/OiAq5p447LbydMSa2Qx3YpbyimyMqFKmoewvkU4vh2gYxLqmaYaskgb4lM5IaZ32K4rmRJt6kVNZiS3sTOqmapZ6KQg84hYk0k1KlZFRGwym5zND17LX7A6MJGbPlBkwzBVR79kaqS4uOyOvIQ1BmsKsWZdSoxHWc9oloDCXtNB2MMtJSPwREtAo7z6Qqg1HrQMOUGv6T4IBUEuelTDavr8GI//YNEhUNWxf28iSNbnHM4itgyIyyZ0M16jWt1wW2TVlhSopolbbS6C2rP1et7nJhcAOSyVthSqndtvEYqFG9ioP0lGxvZmaIB8860FyvZceN02OivdoHHJegRY重点是"Comic Shanns", monospace;
+                }
+            </style>
+        </defs>
+
+        <!-- 背景斜线阴影部分 (share_area) -->
+        <g stroke-linecap="round" transform="translate(610 50) rotate(0 60 50)">
+            <path d="M0 0 C0 0, 0 0, 0 0 M0 0 C0 0, 0 0, 0 0 M0.13 12.04 C3.7 7.94, 7.26 3.84, 10.63 -0.03 M0.13 12.04 C3.49 8.18, 6.85 4.32, 10.63 -0.03 M0.27 24.08 C5.27 18.33, 10.27 12.57, 21.26 -0.07 M0.27 24.08 C4.6 19.09, 8.94 14.11, 21.26 -0.07 M-0.26 36.88 C6.99 28.54, 14.23 20.21, 31.89 -0.1 M-0.26 36.88 C11.75 23.06, 23.76 9.24, 31.89 -0.1 M-0.12 48.92 C12.16 34.79, 24.44 20.66, 42.52 -0.14 M-0.12 48.92 C11.2 35.89, 22.53 22.86, 42.52 -0.14 M0.01 60.96 C20.24 37.68, 40.47 14.41, 53.15 -0.17 M0.01 60.96 C11.23 48.05, 22.46 35.14, 53.15 -0.17 M0.14 73 C19.04 51.26, 37.94 29.52, 63.78 -0.21 M0.14 73 C13 58.21, 25.85 43.43, 63.78 -0.21 M0.28 85.04 C18.13 64.5, 35.99 43.96, 74.41 -0.24 M0.28 85.04 C27.7 53.49, 55.13 21.94, 74.41 -0.24 M-0.25 97.84 C25.29 68.46, 50.82 39.09, 85.04 -0.28 M-0.25 97.84 C30.99 61.9, 62.23 25.96, 85.04 -0.28 M8.41 100.07 C27.09 78.58, 45.77 57.09, 95.67 -0.31 M8.41 100.07 C29.25 76.09, 50.09 52.12, 95.67 -0.31 M19.05 100.03 C41.11 74.65, 63.17 49.27, 106.3 -0.34 M19.05 100.03 C37.43 78.88, 55.81 57.74, 106.3 -0.34 M29.68 100 C62.77 61.93, 95.86 23.86, 116.27 0.38 M29.68 100 C60.69 64.32, 91.71 28.63, 116.27 0.38 M40.31 99.96 C67.39 68.8, 94.48 37.64, 120.34 7.89 M40.31 99.96 C71.43 64.15, 102.56 28.34, 120.34 7.89 M50.94 99.93 C64.87 83.9, 78.81 67.86, 120.48 19.93 M50.94 99.93 C73.19 74.32, 95.45 48.72, 120.48 19.93 M61.57 99.89 C76.95 82.19, 92.34 64.49, 120.61 31.97 M61.57 99.89 C76.7 82.48, 91.83 65.08, 120.61 31.97 M71.54 100.61 C90.84 78.42, 110.13 56.22, 120.09 44.77 M71.54 100.61 C84.55 85.64, 97.57 70.67, 120.09 44.77 M82.17 100.58 C95.38 85.38, 108.59 70.18, 120.22 56.81 M82.17 100.58 C96.24 84.4, 110.3 68.22, 120.22 56.81 M92.8 100.54 C100.39 91.81, 107.98 83.08, 120.35 68.85 M92.8 100.54 C103.75 87.95, 114.7 75.36, 120.35 68.85 M103.43 100.51 C107.69 95.61, 111.95 90.71, 120.49 80.89 M103.43 100.51 C110.04 92.91, 116.65 85.31, 120.49 80.89 M114.06 100.48 C115.44 98.89, 116.82 97.3, 120.62 92.93 M114.06 100.48 C115.73 98.55, 117.4 96.63, 120.62 92.93" stroke="#a5d8ff" stroke-width="1" fill="none"></path>
+            <path d="M0 0 C30.63 0, 61.27 0, 120 0 M0 0 C25.26 0, 50.52 0, 120 0 M120 0 C120 30.52, 120 61.04, 120 100 M120 0 C120 27.24, 120 54.48, 120 100 M120 100 C84.29 100, 48.59 100, 0 100 M120 100 C92.92 100, 65.84 100, 0 100 M0 100 C0 63.77, 0 27.53, 0 0 M0 100 C0 73.58, 0 47.16, 0 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path>
+        </g>
+
+        <!-- 外部大矩形框架 -->
+        <g stroke-linecap="round" transform="translate(70 50) rotate(0 550 50)">
+            <path d="M0 0 C280.92 0, 561.84 0, 1100 0 M0 0 C367.45 0, 734.9 0, 1100 0 M1100 0 C1100 38.17, 1100 76.34, 1100 100 M1100 0 C1100 22.22, 1100 44.44, 1100 100 M1100 100 C864.47 100, 628.94 100, 0 100 M1100 100 C767.75 100, 435.49 100, 0 100 M0 100 C0 78.04, 0 56.08, 0 0 M0 100 C0 73.68, 0 47.36, 0 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path>
+        </g>
+
+        <!-- 各个分隔线 -->
+        <g stroke-linecap="round"><g transform="translate(190 50) rotate(0 0 50)"><path d="M0 0 C0 20.87, 0 41.74, 0 100 M0 0 C0 27.38, 0 54.77, 0 100" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(330 50) rotate(0 0 50)"><path d="M0 0 C0 23.18, 0 46.35, 0 100 M0 0 C0 22.88, 0 45.76, 0 100" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(610 50) rotate(0 0 50)"><path d="M0 0 C0 25.15, 0 50.3, 0 100 M0 0 C0 20.11, 0 40.22, 0 100" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(730 50) rotate(0 0 50)"><path d="M0 0 C0 29.55, 0 59.11, 0 100 M0 0 C0 36.11, 0 72.23, 0 100" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(870 50) rotate(0 0 50)"><path d="M0 0 C0 22.2, 0 44.4, 0 100 M0 0 C0 30.28, 0 60.56, 0 100" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+
+        <!-- 刻度/定位辅助短线 -->
+        <g stroke-linecap="round"><g transform="translate(70 10) rotate(0 0 30)"><path d="M0 0 C0 16.2, 0 32.4, 0 60 M0 0 C0 21.9, 0 43.8, 0 60" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(610 10) rotate(0 0 30)"><path d="M0 0 C0 23.96, 0 47.91, 0 60 M0 0 C0 19.25, 0 38.5, 0 60" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(190 130) rotate(0 0 30)"><path d="M0 0 C0 23.17, 0 46.34, 0 60 M0 0 C0 21.17, 0 42.34, 0 60" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+        <g stroke-linecap="round"><g transform="translate(730 130) rotate(0 0 30)"><path d="M0 0 C0 19.46, 0 38.93, 0 60 M0 0 C0 21.63, 0 43.27, 0 60" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g></g>
+
+        <!-- 顶部 s(nb) 标注及指向箭头 -->
+        <g mask="url(#mask-620eDJkMEJKypBzF7R4_L)" stroke-linecap="round">
+            <g transform="translate(70 30) rotate(0 270 0)"><path d="M0 0 C134.23 0, 268.47 0, 540 0 M0 0 C126.29 0, 252.59 0, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(70 30) rotate(0 270 0)"><path d="M516.51 8.55 C522.35 6.43, 528.19 4.3, 540 0 M516.51 8.55 C522 6.55, 527.5 4.55, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(70 30) rotate(0 270 0)"><path d="M516.51 -8.55 C522.35 -6.43, 528.19 -4.3, 540 0 M516.51 -8.55 C522 -6.55, 527.5 -4.55, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+        </g>
+        <mask id="mask-620eDJkMEJKypBzF7R4_L" maskUnits="userSpaceOnUse" x="0" y="0" width="710" height="130">
+            <rect x="0" y="0" fill="#fff" width="710" height="130"></rect>
+            <rect x="312.5" y="17.5" fill="#000" width="55" height="25" opacity="1"></rect>
+        </mask>
+        <g transform="translate(312.5 17.5) rotate(0 27.5 12.5)">
+            <text x="27.5" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="middle" dominant-baseline="alphabetic">s(nb)</text>
+        </g>
+
+        <!-- 下方 s(nb) 标注及指向箭头 -->
+        <g mask="url(#mask-UWqTY0JQD65A70C4bddR3)" stroke-linecap="round">
+            <g transform="translate(190 170) rotate(0 270 0)"><path d="M0 0 C164.68 0, 329.35 0, 540 0 M0 0 C118.71 0, 237.42 0, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(190 170) rotate(0 270 0)"><path d="M516.51 8.55 C523.67 5.94, 530.84 3.34, 540 0 M516.51 8.55 C521.67 6.67, 526.84 4.79, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(190 170) rotate(0 270 0)"><path d="M516.51 -8.55 C523.67 -5.94, 530.84 -3.34, 540 0 M516.51 -8.55 C521.67 -6.67, 526.84 -4.79, 540 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+        </g>
+        <mask id="mask-UWqTY0JQD65A70C4bddR3" maskUnits="userSpaceOnUse" x="0" y="0" width="830" height="270">
+            <rect x="0" y="0" fill="#fff" width="830" height="270"></rect>
+            <rect x="432.5" y="157.5" fill="#000" width="55" height="25" opacity="1"></rect>
+        </mask>
+        <g transform="translate(432.5 157.5) rotate(0 27.5 12.5)">
+            <text x="27.5" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="middle" dominant-baseline="alphabetic">s(nb)</text>
+        </g>
+
+        <!-- 文本标注 -->
+        <g transform="translate(90 110) rotate(0 49.5 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">prev_size</text></g>
+        <g transform="translate(210 110) rotate(0 55 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">chunk_size</text></g>
+        <g transform="translate(430 110) rotate(0 71.5 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">user data ...</text></g>
+        <g transform="translate(630 90) rotate(0 55 25)">
+            <text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">share_area</text>
+            <text x="0" y="42.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">(pre_size)</text>
+        </g>
+        <g transform="translate(750 110) rotate(0 55 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">chunk_size</text></g>
+
+        <!-- 指针定位 (char*) p -->
+        <g stroke-linecap="round">
+            <g transform="translate(70 250) rotate(0 -0.004402971623449048 -47.00007063794965)"><path d="M0 0 C0 -24.45, 0 -48.89, -0.01 -94 M0 0 C0 -33.26, -0.01 -66.52, -0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(70 250) rotate(0 -0.004402971623449048 -47.00007063794965)"><path d="M8.54 -70.51 C6.32 -76.62, 4.1 -82.73, -0.01 -94 M8.54 -70.51 C5.52 -78.82, 2.49 -87.13, -0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(70 250) rotate(0 -0.004402971623449048 -47.00007063794965)"><path d="M-8.56 -70.51 C-6.33 -76.62, -4.11 -82.73, -0.01 -94 M-8.56 -70.51 C-5.53 -78.82, -2.51 -87.13, -0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+        </g>
+        <g transform="translate(10 250) rotate(0 55 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">(char*) p </text></g>
+
+        <!-- 指针定位 (char*)p + s -->
+        <g stroke-linecap="round">
+            <g transform="translate(730 250) rotate(0 0.0025187530163748306 -47.00005827793984)"><path d="M0 0 C0 -25.91, 0 -51.83, 0.01 -94 M0 0 C0 -31.93, 0 -63.86, 0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(730 250) rotate(0 0.0025187530163748306 -47.00005827793984)"><path d="M8.55 -70.51 C6.2 -76.98, 3.84 -83.46, 0.01 -94 M8.55 -70.51 C5.65 -78.49, 2.75 -86.47, 0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+            <g transform="translate(730 250) rotate(0 0.0025187530163748306 -47.00005827793984)"><path d="M-8.55 -70.51 C-6.19 -76.98, -3.83 -83.46, 0.01 -94 M-8.55 -70.51 C-5.64 -78.49, -2.74 -86.47, 0.01 -94" stroke="#1e1e1e" stroke-width="2" fill="none"></path></g>
+        </g>
+        <g transform="translate(670 250) rotate(0 66 12.5)"><text x="0" y="17.5" font-family="'Comic Shanns', monospace, sans-serif" font-size="20px" fill="#1e1e1e" text-anchor="start" dominant-baseline="alphabetic">(char*)p + s</text></g>
+    </svg>
+</div>
+
+</body>
+</html>

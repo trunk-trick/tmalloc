@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Figure: Fastbin Unlink Operation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 50px auto;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .figure-container {
+            border: 1px dashed #ccc; 
+            padding: 40px 30px;
+            background-color: #fafafa;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: inline-block;
+            width: 860px;
+        }
+
+        .diagram-canvas {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* State Sections (Before / After) */
+        .state-block {
+            border: 1.5pt solid #dddddd;
+            background-color: #ffffff;
+            padding: 25px 20px;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .state-title {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: #ffffff;
+            padding: 0 10px;
+            font-weight: bold;
+            font-size: 11pt;
+            font-variant: small-caps;
+            letter-spacing: 0.5px;
+            color: #333;
+        }
+
+        /* Linked List Row */
+        .bin-row {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Array Header Box */
+        .index-box {
+            width: 120px;
+            height: 54px;
+            border: 1.5pt solid #000000;
+            background-color: #f0f4f8; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 10.5pt;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .index-box .idx-label {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        /* Connectors and Arrows */
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 90px;
+            position: relative;
+        }
+
+        .connector .arrow-line {
+            width: 100%;
+            height: 1.5pt;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .connector .arrow-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid #000000;
+        }
+
+        .connector .arrow-text {
+            position: absolute;
+            top: -18px;
+            font-size: 8pt;
+            background: #ffffff;
+            padding: 0 4px;
+            color: #444;
+            font-style: italic;
+        }
+
+        /* Chunk Nodes */
+        .chunk-node {
+            width: 110px;
+            height: 46px;
+            border: 1.5pt solid #000000;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 10.5pt;
+            font-weight: bold;
+            font-family: 'STIX Two Text', serif;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+        }
+
+        /* Highlighted Victim Node */
+        .victim-node {
+            background-color: #fff4f4;
+            border: 1.5pt dashed #b30000;
+            color: #b30000;
+        }
+        
+        .victim-node .sub-label {
+            color: #b30000;
+        }
+
+        .chunk-node .sub-label {
+            font-size: 8pt;
+            font-weight: normal;
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: 2px;
+            color: #555;
+        }
+
+        /* Ellipsis / Continuation */
+        .ellipsis {
+            font-size: 14pt;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0 15px;
+            color: #555;
+        }
+
+        /* Transition Action Block */
+        .transition-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10pt;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .down-arrow {
+            font-size: 18pt;
+            margin-bottom: 4px;
+        }
+
+        /* Academic Caption Formatting */
+        .figure-caption {
+            margin-top: 25px;
+            font-size: 9.5pt;
+            line-height: 1.5;
+            text-align: justify;
+            border-top: 0.75pt solid #ccc;
+            padding-top: 12px;
+        }
+
+        .figure-caption strong {
+            font-variant: small-caps;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="figure-container">
+    
+    <div class="diagram-canvas">
+        
+        <!-- BEFORE STATE -->
+        <div class="state-block">
+            <div class="state-title">State A: Before Allocation</div>
+            <div class="bin-row">
+                <div class="index-box">
+                    <div class="idx-label">fastbinsY[idx]</div>
+                </div>
+                
+                <div class="connector">
+                    <span class="arrow-text">points to</span>
+                    <div class="arrow-line"></div>
+                </div>
+                
+                <div class="chunk-node victim-node">
+                    <div>victim</div>
+                    <div class="sub-label">(LIFO top)</div>
+                </div>
+                
+                <div class="connector">
+                    <span class="arrow-text">->fd</span>
+                    <div class="arrow-line"></div>
+                </div>
+                
+                <div class="chunk-node">
+                    <div>next</div>
+                    <div class="sub-label">chunk</div>
+                </div>
+                
+                <div class="connector">
+                    <span class="arrow-text">->fd</span>
+                    <div class="arrow-line"></div>
+                </div>
+                
+                <div class="ellipsis">...</div>
+            </div>
+        </div>
+
+        <!-- TRANSITION INDICATOR -->
+        <div class="transition-action">
+            <div class="down-arrow">&darr;</div>
+            <div>fastbinsY[idx] = victim->fd;</div>
+            <div style="font-size: 8.5pt; font-weight: normal; margin-top: 2px;">(victim chunk is unlinked and returned to user)</div>
+        </div>
+
+        <!-- AFTER STATE -->
+        <div class="state-block">
+            <div class="state-title">State B: After Allocation</div>
+            <div class="bin-row">
+                <div class="index-box">
+                    <div class="idx-label">fastbinsY[idx]</div>
+                </div>
+                
+                <div class="connector">
+                    <span class="arrow-text">points to</span>
+                    <div class="arrow-line"></div>
+                </div>
+                
+                <div class="chunk-node">
+                    <div>next</div>
+                    <div class="sub-label">chunk</div>
+                </div>
+                
+                <div class="connector">
+                    <span class="arrow-text">->fd</span>
+                    <div class="arrow-line"></div>
+                </div>
+                
+                <div class="ellipsis">...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Academic Figure Caption -->
+    <div class="figure-caption">
+        <strong>Fig. 2.</strong> The LIFO pop mechanism during a fastbin chunk allocation. 
+        In <em>State A</em>, the fastbin index points to the most recently freed chunk (the <tt>victim</tt>). 
+        When a memory request matches this bin size, <tt>malloc</tt> unlinks the <tt>victim</tt> by updating the 
+        <tt>fastbinsY[idx]</tt> head pointer to the <tt>victim-&gt;fd</tt> pointer. <em>State B</em> illustrates the updated linked list structure, where <tt>next</tt> becomes the new top of the bin.
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Table: Fastbin Index Calculation</title>
+    <!-- Importing STIX Two Text, the premier scientific publishing font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            /* Standard LaTeX/Academic font stack */
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            margin: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #000000;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .academic-container {
+            width: 720px;
+            box-sizing: border-box;
+        }
+
+        /* Standard academic table caption placed ABOVE the table */
+        .table-caption {
+            font-size: 10pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .table-subcaption {
+            font-size: 10pt;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        /* Classic Three-Line Table (三线表) Styling */
+        .three-line-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Thick top border */
+        .three-line-table thead tr:first-child th {
+            border-top: 1.5pt solid #000000;
+        }
+
+        /* Thin header bottom border */
+        .three-line-table th {
+            border-bottom: 0.75pt solid #000000;
+            padding: 8px 12px;
+            font-weight: bold;
+        }
+
+        /* Standard rows */
+        .three-line-table td {
+            padding: 6px 12px;
+        }
+
+        /* Thick bottom border */
+        .three-line-table tbody tr:last-child td {
+            border-bottom: 1.5pt solid #000000;
+        }
+
+        /* Formula and code formatting */
+        .code-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+
+        /* Table Footnotes */
+        .table-footnotes {
+            margin-top: 10px;
+            font-size: 8.5pt;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .footnote-item {
+            margin-bottom: 4px;
+        }
+
+        sup {
+            font-size: 7pt;
+            font-weight: normal;
+            vertical-align: super;
+            line-height: 0;
+        }
+
+        /* Math variables standard italicization */
+        .math-var {
+            font-family: 'STIX Two Text', 'Latin Modern Roman', 'Times New Roman', Times, serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="academic-container">
+    
+    <!-- Academic Caption -->
+    <div class="table-caption">Table I</div>
+    <div class="table-subcaption">Comparison of Fastbin Index Mapping and Architecture Parameters</div>
+
+    <!-- Three-Line Table -->
+    <table class="three-line-table">
+        <thead>
+            <tr>
+                <th style="width: 25%;">Parameter / Index (<span class="math-var">i</span>)</th>
+                <th style="width: 37.5%;">64-bit Architecture</th>
+                <th style="width: 37.5%;">32-bit Architecture</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Architecture Metadata Rows -->
+            <tr>
+                <td>Pointer Size (<span class="code-text">SIZE_SZ</span>)</td>
+                <td>8 Bytes</td>
+                <td>4 Bytes</td>
+            </tr>
+            <tr>
+                <td>Alignment Constraint</td>
+                <td>16 Bytes (<span class="code-text">MALLOC_ALIGNMENT</span>)</td>
+                <td>8 Bytes (<span class="code-text">MALLOC_ALIGNMENT</span>)</td>
+            </tr>
+            <tr>
+                <td>Index Formula</td>
+                <td><span class="math-var">i</span> = (<span class="math-var">sz</span> &gt;&gt; 4) - 2</td>
+                <td><span class="math-var">i</span> = (<span class="math-var">sz</span> &gt;&gt; 3) - 2</td>
+            </tr>
+            <!-- Divider Row for Index Mapping -->
+            <tr style="border-top: 0.75pt solid #000000;">
+                <td><span class="math-var">i</span> = 0</td>
+                <td><span class="math-var">sz</span> = 32<sup>a</sup></td>
+                <td><span class="math-var">sz</span> = 16<sup>a</sup></td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 1</td>
+                <td><span class="math-var">sz</span> = 48</td>
+                <td><span class="math-var">sz</span> = 24</td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 2</td>
+                <td><span class="math-var">sz</span> = 64</td>
+                <td><span class="math-var">sz</span> = 32</td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 3</td>
+                <td><span class="math-var">sz</span> = 80</td>
+                <td><span class="math-var">sz</span> = 40</td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 4</td>
+                <td><span class="math-var">sz</span> = 96</td>
+                <td><span class="math-var">sz</span> = 48</td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 5</td>
+                <td><span class="math-var">sz</span> = 112</td>
+                <td><span class="math-var">sz</span> = 56</td>
+            </tr>
+            <tr>
+                <td><span class="math-var">i</span> = 6</td>
+                <td><span class="math-var">sz</span> = 128<sup>b</sup></td>
+                <td><span class="math-var">sz</span> = 64<sup>b</sup></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Academic Footnotes -->
+    <div class="table-footnotes">
+        <div class="footnote-item"><sup>a</sup> Denotes the minimum allocatable chunk size (<span class="code-text">MINSIZE</span>) on the respective architecture.</div>
+        <div class="footnote-item"><sup>b</sup> Denotes the default maximum fastbin size limit (<span class="code-text">DEFAULT_MXFAST</span>).</div>
+    </div>
+
+</div>
+
+</body>
+</html>

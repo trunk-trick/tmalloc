@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory Chunk Overlap Diagram</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            margin: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .diagram-wrapper {
+            position: relative;
+            padding-bottom: 220px; /* Increased space at the bottom for annotations and the new bracket */
+            margin-top: 20px;
+            width: 820px;
+        }
+
+        /* Top scope brackets container */
+        .chunk-scopes {
+            display: flex;
+            position: relative;
+            height: 90px;
+            margin-bottom: 5px;
+        }
+
+        .scope-box {
+            position: absolute;
+            border-top: 2px solid #000;
+            border-left: 2px solid #000;
+            border-right: 2px solid #000;
+            box-sizing: border-box;
+            bottom: 0px;
+        }
+
+        .scope-label {
+            position: absolute;
+            top: -25px;
+            left: 0;
+            right: 0;
+            font-weight: bold;
+            font-size: 13pt;
+            text-align: center;
+        }
+
+        /* UPPER BRACKET: Chunk A */
+        .scope-a {
+            left: 0px;
+            width: 510px; /* Spans from 0x1000 to 0x1028 (includes Shared Space) */
+            height: 60px;
+            border-color: #000000;
+        }
+
+        /* LOWER BRACKET: Chunk B (Shifted Right) */
+        .scope-b {
+            left: 400px; /* Starts right at 0x1020 (Shared Space) */
+            width: 390px;
+            height: 25px;
+            border-color: #555555;
+        }
+        
+        .scope-b .scope-label {
+            color: #333333;
+        }
+
+        /* Address labels row */
+        .address-labels {
+            display: flex;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11pt;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        /* Main memory row block container */
+        .memory-row {
+            display: flex;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            height: 75px;
+        }
+
+        /* Standard cell styles */
+        .cell {
+            border-left: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #ffffff;
+            font-size: 11pt;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+
+        .cell-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .cell-size {
+            font-size: 10pt;
+            color: #555;
+        }
+
+        /* Dynamic cell widths based on memory sizing */
+        .w-8b { width: 110px; }
+        .w-16b { width: 180px; }
+        .w-open { 
+            width: 140px; 
+            border-right: none;
+            background: linear-gradient(to right, #fff 70%, rgba(255,255,255,0) 100%);
+        }
+
+        /* Shaded overlapping cell styling */
+        .overlap-cell {
+            background: repeating-linear-gradient(
+                45deg,
+                #f2f2f2,
+                #f2f2f2 7px,
+                #e6e6e6 7px,
+                #e6e6e6 14px
+            );
+            border-left: 2px solid #000;
+            border-right: 2px solid #000;
+        }
+
+        .overlap-title {
+            font-weight: bold;
+            color: #b30000;
+        }
+
+        /* Open ended right side indicator */
+        .dashed-end {
+            width: 30px;
+            border-top: 2px dashed #000;
+            border-bottom: 2px dashed #000;
+            height: 75px;
+            margin-top: -2px;
+        }
+
+        /* Bottom scope bracket container */
+        .bottom-scopes {
+            position: absolute;
+            top: 200px; /* Aligned below the memory block */
+            left: 0;
+            width: 820px;
+            height: 45px;
+        }
+
+        /* UNDER BRACKET: Under Chunk B's data */
+        .under-scope-box {
+            position: absolute;
+            border-bottom: 2px solid #111;
+            border-left: 2px solid #111;
+            border-right: 2px solid #111;
+            box-sizing: border-box;
+            top: 0px;
+            /* Starts after B.mchunk_size (0x1028), which is at 510px, and spans to the right */
+            left: 510px;
+            width: 280px;
+            height: 15px;
+        }
+
+        .under-scope-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 11pt;
+            text-align: center;
+            color: #333;
+        }
+
+        /* Annotation lines and arrows pointing to the overlap cell */
+        .annotation-container {
+            position: absolute;
+            left: 170px; /* Shifted left to keep it visually clear of the new bottom bracket */
+            top: 175px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pointer-line {
+            width: 2px;
+            height: 35px;
+            background-color: #000;
+            position: relative;
+        }
+
+        .pointer-line::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -4px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 7px solid #000;
+        }
+
+        .annotation-box {
+            border: 1px dashed #444;
+            background-color: #fafafa;
+            padding: 10px 15px;
+            font-size: 11pt;
+            line-height: 1.4;
+            border-radius: 4px;
+            width: 260px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="diagram-wrapper">
+    
+    <!-- Stacked Scope Brackets (Top) -->
+    <div class="chunk-scopes">
+        <!-- Higher Bracket (Chunk A) -->
+        <div class="scope-box scope-a">
+            <div class="scope-label">Chunk A (Allocated Scope)</div>
+        </div>
+        <!-- Lower Bracket (Chunk B) -->
+        <div class="scope-box scope-b">
+            <div class="scope-label">Chunk B (Allocated Scope)</div>
+        </div>
+    </div>
+
+    <!-- Address Indicators -->
+    <div class="address-labels">
+        <div style="width: 110px; text-align: left;">0x1000</div>
+        <div style="width: 110px; text-align: left;">0x1008</div>
+        <div style="width: 180px; text-align: left;">0x1010</div>
+        <div style="width: 110px; text-align: left;">0x1020</div>
+        <div style="width: 110px; text-align: left;">0x1028</div>
+    </div>
+
+    <!-- Main Memory Layout Blocks -->
+    <div class="memory-row">
+        <div class="cell w-8b">
+            <div class="cell-title">A.prev_size</div>
+            <div class="cell-size">(8B)</div>
+        </div>
+        <div class="cell w-8b">
+            <div class="cell-title">A.mchunk_size</div>
+            <div class="cell-size">(8B)</div>
+        </div>
+        <div class="cell w-16b">
+            <div class="cell-title">A's User Data</div>
+            <div class="cell-size">(First 16B)</div>
+        </div>
+        
+        <!-- Overlapping Shared Field Section -->
+        <div class="cell w-8b overlap-cell">
+            <div class="overlap-title">Shared Space</div>
+            <div class="cell-size">(8B)</div>
+        </div>
+        
+        <div class="cell w-8b">
+            <div class="cell-title">B.mchunk_size</div>
+            <div class="cell-size">(8B)</div>
+        </div>
+        <div class="cell w-open">
+            <div class="cell-title" style="text-align: left; padding-left: 10px;">B's Data...</div>
+        </div>
+        <div class="dashed-end"></div>
+    </div>
+
+    <!-- Bottom Scope Brackets -->
+    <div class="bottom-scopes">
+        <div class="under-scope-box">
+            <div class="under-scope-label">we really need to allocate</div>
+        </div>
+    </div>
+
+    <!-- Explanatory Context Box (Positioned cleanly on the left) -->
+    <div class="annotation-container">
+        <div class="pointer-line"></div>
+        <div class="annotation-box">
+            <strong>This memory space simultaneously acts as:</strong>
+            <ul style="margin: 5px 0 0 18px; padding: 0;">
+                <li>The last 8 bytes of <em>A's User Data</em></li>
+                <li>The <em>B.prev_size</em> field configuration</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

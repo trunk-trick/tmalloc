@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Glibc Heap Allocation Flowchart</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #ffffff;
+            margin: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flowchart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 720px;
+        }
+
+        /* Title style for academic paper */
+        .title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        /* Row representing a decision point */
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Decision Box (Left Column) */
+        .decision-box {
+            border: 2px solid #000000;
+            background-color: #ffffff;
+            width: 320px;
+            padding: 15px;
+            text-align: center;
+            font-size: 11pt;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 2;
+            line-height: 1.4;
+        }
+
+        .code-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        /* Action/Terminal Box (Right Column) */
+        .action-box {
+            border: 2px solid #000000;
+            background-color: #f8f9fa;
+            width: 260px;
+            padding: 15px;
+            text-align: center;
+            font-size: 11pt;
+            box-sizing: border-box;
+            border-radius: 4px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        /* Fallback/Final box style */
+        .fallback-box {
+            border: 2px double #000000;
+            background-color: #f1f3f5;
+            width: 320px;
+            padding: 18px 15px;
+            text-align: center;
+            font-size: 11.5pt;
+            font-weight: bold;
+            box-sizing: border-box;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* Horizontal "Yes" Connectors */
+        .yes-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            position: relative;
+        }
+
+        .horizontal-line {
+            width: 100%;
+            height: 2px;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .horizontal-line::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -5px;
+            border-left: 6px solid #000000;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+
+        .yes-label {
+            position: absolute;
+            top: -20px;
+            font-size: 10pt;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        /* Vertical "No" Connectors */
+        .no-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 45px;
+            width: 320px; /* Align with the decision box width */
+            position: relative;
+        }
+
+        .vertical-line {
+            width: 2px;
+            height: 100%;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .vertical-line::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -5px;
+            border-top: 6px solid #000000;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+        }
+
+        .no-label {
+            position: absolute;
+            left: calc(50% + 8px);
+            top: 12px;
+            font-size: 10pt;
+            font-weight: bold;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="flowchart-container">
+    <div class="title">Glibc Heap malloc Allocation Decision Path</div>
+
+    <!-- Step 1 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Is there a chunk in <span class="code-text">fastbin[idx]</span>?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Retrieve chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Is there a chunk in <span class="code-text">smallbin[idx]</span>?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Retrieve chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Is there an exact fit chunk in <span class="code-text">unsorted bin</span>?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Retrieve chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Is there a chunk <span class="code-text">&ge; nb</span> (smallest fit) in <span class="code-text">large bin</span>?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Split chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Are there chunks in larger bins via <span class="code-text">binmap</span> scan?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Split chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="flow-row">
+        <div class="decision-box">
+            Is the <span class="code-text">top chunk</span> large enough?
+        </div>
+        <div class="yes-connector">
+            <span class="yes-label">Yes</span>
+            <div class="horizontal-line"></div>
+        </div>
+        <div class="action-box">
+            Split from top chunk & return
+        </div>
+    </div>
+
+    <div class="no-connector">
+        <span class="no-label">No</span>
+        <div class="vertical-line"></div>
+    </div>
+
+    <!-- Step 7 / Fallback -->
+    <div class="flow-row">
+        <div class="fallback-box">
+            Otherwise &rarr; Invoke <span class="code-text">sysmalloc</span> to request from OS
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
