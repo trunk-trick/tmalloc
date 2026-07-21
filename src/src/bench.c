@@ -83,9 +83,6 @@ static double pct(const uint64_t *arr, int n, double p) {
 
 /* ---- binary search for max contiguous allocation ---- */
 static size_t probe_max_block(size_t hi_limit) {
-    /* binary search for the largest single malloc that succeeds, up to hi_limit.
-     * Use a moderate limit (e.g. 128KB) to measure BRK/small-block heap
-     * fragmentation rather than mmap fallback. */
     size_t lo = 16, hi = hi_limit, best = 0;
     while (lo <= hi) {
         size_t mid = lo + (hi - lo) / 2;
@@ -135,6 +132,9 @@ int main(int argc, char **argv) {
     pc    = 0;
     memset(live, 0, sizeof(live));
 
+    size_t current_allocated = 0;
+    size_t peak_allocated    = 0;
+
     uint64_t t_start = now_ns();
     for (int i = 0; i < op_cnt; i++) {
         if (ops[i].op == 'A') {
@@ -143,6 +143,9 @@ int main(int argc, char **argv) {
             uint64_t t1 = now_ns();
             a_ns[a_cnt++] = t1 - t0;
             live[pc] = 1;
+            current_allocated += ops[i].size;
+            if (current_allocated > peak_allocated)
+                peak_allocated = current_allocated;
             pc++;
         } else {
             int t = ops[i].tag;
@@ -152,21 +155,50 @@ int main(int argc, char **argv) {
                 uint64_t t1 = now_ns();
                 f_ns[f_cnt++] = t1 - t0;
                 live[t] = 0;
+                /* we don't know the freed size from the tag alone,
+                 * but we can track it during the warmup pass.  For now
+                 * estimate from the average alloc size — actually we
+                 * need to store sizes.  Let's use a side array. */
             }
         }
     }
     uint64_t t_end = now_ns();
     double total_us = (t_end - t_start) / 1000.0;
 
-    /* 4. peak RSS (HWM) */
-    size_t peak_rss = read_status("VmHWM");
-    size_t vm_peak  = read_status("VmPeak");
+    /* ---- FIX: track freed sizes.  We must go back and subtract them. ---- */
+    /* We re-read the workload to know sizes of freed blocks. */
+    {
+        size_t tmp_cur = 0;
+        size_t tmp_peak = 0;
+        int tmp_pc = 0;
+        size_t ptr_sizes[MAX_PTRS];
+        memset(live, 0, sizeof(live));
 
-    /* 5. fragmentation under load — BEFORE freeing remaining allocs.
-     *    For hand-written allocators, use the internal __alloc_frag_stats
-     *    which walks the free list directly (accurate).
-     *    For real allocators, probe the small-block heap with binary search
-     *    capped at 64KB (below glibc's 128KB mmap threshold). */
+        for (int i = 0; i < op_cnt; i++) {
+            if (ops[i].op == 'A') {
+                tmp_cur += ops[i].size;
+                if (tmp_cur > tmp_peak) tmp_peak = tmp_cur;
+                ptr_sizes[tmp_pc] = ops[i].size;
+                live[tmp_pc] = 1;
+                tmp_pc++;
+            } else {
+                int t = ops[i].tag;
+                if (t < MAX_PTRS && live[t]) {
+                    live[t] = 0;
+                    tmp_cur -= ptr_sizes[t];
+                }
+            }
+        }
+        current_allocated = tmp_cur;
+        peak_allocated    = tmp_peak;
+    }
+
+    /* 4. RSS at end of timed pass (before freeing) — metric #1 */
+    size_t current_rss  = read_status("VmRSS");
+    size_t peak_rss     = read_status("VmHWM");
+    size_t vm_peak      = read_status("VmPeak");
+
+    /* 5. fragmentation under load — BEFORE freeing remaining allocs. */
     size_t total_free = 0;
     size_t max_contig = 0;
 
@@ -175,7 +207,7 @@ int main(int argc, char **argv) {
         frag_fn(&total_free, &max_contig);
     } else {
         max_contig = probe_max_block(64UL * 1024);
-        total_free = 0;  /* unknown for real allocators */
+        total_free = 0;
     }
 
     /* 6. free remaining live allocations */
@@ -185,8 +217,7 @@ int main(int argc, char **argv) {
     qsort(a_ns, a_cnt, sizeof(uint64_t), cmp_u64);
     qsort(f_ns, f_cnt, sizeof(uint64_t), cmp_u64);
 
-    /* 8. compute fragmentation ratio from internal free-list walk.
-     *    Only available for hand-written allocators that export __alloc_frag_stats. */
+    /* 8. old-style frag_ratio (1 - max_contig/total_free) */
     int have_frag = (total_free > 0 && max_contig > 0);
     double frag_ratio = 0.0;
     if (have_frag) {
@@ -196,7 +227,21 @@ int main(int argc, char **argv) {
         frag_ratio = d;
     }
 
-    /* 9. output JSON */
+    /* 9. three new metrics from malloc_analysis.md */
+    /* Metric 1: Frag Ratio = RSS / Allocated */
+    double metric_frag_ratio = 0.0;
+    if (current_allocated > 0)
+        metric_frag_ratio = (double)(current_rss * 1024) / (double)current_allocated;
+
+    /* Metric 2: Peak Overhead Ratio = Peak RSS / Peak Allocated */
+    double metric_peak_overhead = 0.0;
+    if (peak_allocated > 0)
+        metric_peak_overhead = (double)(peak_rss * 1024) / (double)peak_allocated;
+
+    /* Metric 3: OPS */
+    double metric_ops = op_cnt / (total_us / 1000000.0);
+
+    /* 10. output JSON */
     printf("{");
     printf("\"total_ops\":%d,", op_cnt);
     printf("\"total_time_us\":%.2f,", total_us);
@@ -206,15 +251,20 @@ int main(int argc, char **argv) {
     printf("\"avg_free_ns\":%.1f,", avg(f_ns, f_cnt));
     printf("\"p50_free_ns\":%.1f,", pct(f_ns, f_cnt, 50));
     printf("\"p99_free_ns\":%.1f,", pct(f_ns, f_cnt, 99));
+    printf("\"current_rss_kb\":%zu,", current_rss);
     printf("\"peak_rss_kb\":%zu,", peak_rss);
     printf("\"vm_peak_kb\":%zu,", vm_peak);
+    printf("\"allocated_bytes\":%zu,", current_allocated);
+    printf("\"peak_allocated_bytes\":%zu,", peak_allocated);
     printf("\"max_contig_bytes\":%zu,", max_contig);
     printf("\"total_free_bytes\":%zu,", total_free);
     if (have_frag)
         printf("\"frag_ratio\":%.4f,", frag_ratio);
     else
         printf("\"frag_ratio\":null,");
-    printf("\"ops_per_sec\":%.0f", op_cnt / (total_us / 1000000.0));
+    printf("\"metric1_frag_ratio_rss_div_allocated\":%.4f,", metric_frag_ratio);
+    printf("\"metric2_peak_overhead_ratio\":%.4f,", metric_peak_overhead);
+    printf("\"metric3_ops_per_sec\":%.0f", metric_ops);
     printf("}\n");
 
     return 0;
