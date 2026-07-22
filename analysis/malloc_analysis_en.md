@@ -50,8 +50,11 @@ Our investigation proceeds in two phases:
   (adding glibc ptmalloc, jemalloc, tcmalloc, and mimalloc), using three
   cross-allocator metrics that do not require allocator-internal instrumentation.
 
-The source code for the hand-written allocators and the benchmark harness is
-available at [github.com/trunk-trick/tmalloc](https://github.com/trunk-trick/tmalloc/tree/main/src/src).
+The hand-written allocator implementations are available at
+[github.com/trunk-trick/tmalloc](https://github.com/trunk-trick/tmalloc/tree/main/src/src).
+The complete benchmark framework (harness, workload generator, visualization,
+and `bench.c`) is available at
+[github.com/trunk-trick/malloc_comparison_test](https://github.com/trunk-trick/malloc_comparison_test).
 
 # Hand-Written Allocator Architecture
 
@@ -435,8 +438,9 @@ laboratory for understanding memory allocation at every level of the stack.
 
 # References
 
-1. Source code repository: [github.com/trunk-trick/tmalloc](https://github.com/trunk-trick/tmalloc/tree/main/src/src)
-2. Doug Lea. "A Memory Allocator." [gee.cs.oswego.edu](http://gee.cs.oswego.edu/dl/html/malloc.html)
-3. Jason Evans. "jemalloc." [jemalloc.net](https://jemalloc.net/)
-4. Microsoft. "mimalloc." [github.com/microsoft/mimalloc](https://github.com/microsoft/mimalloc)
-5. Google. "tcmalloc." [github.com/google/tcmalloc](https://github.com/google/tcmalloc)
+1. Hand-written allocator implementations: [github.com/trunk-trick/tmalloc](https://github.com/trunk-trick/tmalloc/tree/main/src/src)
+2. Benchmark framework: [github.com/trunk-trick/malloc_comparison_test](https://github.com/trunk-trick/malloc_comparison_test)
+3. Doug Lea. "A Memory Allocator." [gee.cs.oswego.edu](http://gee.cs.oswego.edu/dl/html/malloc.html)
+4. Jason Evans. "jemalloc." [jemalloc.net](https://jemalloc.net/)
+5. Microsoft. "mimalloc." [github.com/microsoft/mimalloc](https://github.com/microsoft/mimalloc)
+6. Google. "tcmalloc." [github.com/google/tcmalloc](https://github.com/google/tcmalloc)
