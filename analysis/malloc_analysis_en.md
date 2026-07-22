@@ -191,7 +191,7 @@ Each workload is a plain-text file of operations (`A <size>` for alloc,
 The Phase 1 comparison of the three hand-written allocators across all five
 workloads is shown in Figure \ref{fig:phase1}.
 
-![Phase 1: Comparison of three hand-written allocators (first-fit, best-fit, worst-fit) using internal metrics --- throughput (ops/sec), peak RSS, and `frag_ratio = 1 - max_contig/total_free`.\label{fig:phase1}](three_allocators_compare.png)
+![Phase 1: Comparison of three hand-written allocators (first-fit, best-fit, worst-fit) using internal metrics — throughput (ops/sec), peak RSS (KB), and frag_ratio = 1 - max_contig / total_free (lower is better).\label{fig:phase1}](three_allocators_compare.png)
 
 Key observations from Phase 1:
 
@@ -303,7 +303,7 @@ no longer required for the three primary metrics.
 Figure \ref{fig:phase2} presents the three-metric comparison across all seven
 allocators and five workloads.
 
-![Phase 2: Three-metric cross-allocator comparison. Metric 1 and 2: green dashed line at 1.0 = ideal. Metric 3: log scale, higher is better.\label{fig:phase2}](three_metrics_all_allocators.png)
+![Phase 2: Three-metric cross-allocator comparison across all seven allocators. Metric 1 and 2: green dashed line at 1.0 = ideal. Metric 3: log scale, higher is better.\label{fig:phase2}](three_metrics_all_allocators.png)
 
 ### Hand-Written Allocator Rankings (Phase 2 Confirmation)
 

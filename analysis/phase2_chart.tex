@@ -1,0 +1,224 @@
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+\begin{axis}[
+    width=0.48\textwidth, height=6cm,
+    ybar, bar width=3.5pt,
+    ylabel={RSS / Allocated},
+    xtick=data,
+    xticklabels={
+Churn, {Random\\Mix}, {Small\\Objs}, {Large\\Blocks}, {Frag\\Stress}
+},
+    xticklabel style={align=center, text width=1.8cm, font=\scriptsize},
+    ymin=0,
+    legend style={at={(0.5,1.05)}, anchor=south, legend columns=4, font=\tiny, draw=none},
+    grid=major, grid style={dotted, gray!30},
+    bar shift=0pt,
+]
+\addplot[domain=0:6, dashed, green!50!black, line width=0.6pt, forget plot] {1.0};
+
+\addplot[fill=black!40, draw=white, line width=0.3pt] coordinates {
+  (1, 2.3984)
+  (2, 0.2837)
+  (3, 6.7847)
+  (4, 0.0021)
+  (5, 0.3644)
+};
+\addlegendentry{glibc}
+\addplot[fill=blue!55, draw=white, line width=0.3pt] coordinates {
+  (1, 2.6519)
+  (2, 0.0372)
+  (3, 10.4582)
+  (4, 0.003)
+  (5, 0.0945)
+};
+\addlegendentry{jemalloc}
+\addplot[fill=yellow!60!orange, draw=white, line width=0.3pt] coordinates {
+  (1, 5.2258)
+  (2, 0.253)
+  (3, 18.426)
+  (4, 0.0036)
+  (5, 0.4638)
+};
+\addlegendentry{tcmalloc}
+\addplot[fill=green!50!black, draw=white, line width=0.3pt] coordinates {
+  (1, 2.5509)
+  (2, 0.2278)
+  (3, 6.8869)
+  (4, 0.0031)
+  (5, 0.4193)
+};
+\addlegendentry{mimalloc}
+\addplot[fill=violet!60, draw=white, line width=0.3pt] coordinates {
+  (1, 2.4729)
+  (2, 0.2397)
+  (3, 6.9162)
+  (4, 0.0024)
+  (5, 0.3038)
+};
+\addlegendentry{first\_fit}
+\addplot[fill=orange!70, draw=white, line width=0.3pt] coordinates {
+  (1, 2.3151)
+  (2, 0.2212)
+  (3, 6.9162)
+  (4, 0.0024)
+  (5, 0.2888)
+};
+\addlegendentry{best\_fit}
+\addplot[fill=red!60, draw=white, line width=0.3pt] coordinates {
+  (1, 7.5214)
+  (2, 0.2747)
+  (3, 8.0847)
+  (4, 0.0024)
+  (5, 0.4638)
+};
+\addlegendentry{worst\_fit}
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+\begin{axis}[
+    width=0.48\textwidth, height=6cm,
+    ybar, bar width=3.5pt,
+    ylabel={Peak RSS / Peak Allocated},
+    xtick=data,
+    xticklabels={
+Churn, {Random\\Mix}, {Small\\Objs}, {Large\\Blocks}, {Frag\\Stress}
+},
+    xticklabel style={align=center, text width=1.8cm, font=\scriptsize},
+    ymin=0,
+    legend style={at={(0.5,1.05)}, anchor=south, legend columns=4, font=\tiny, draw=none},
+    grid=major, grid style={dotted, gray!30},
+    bar shift=0pt,
+]
+\addplot[domain=0:6, dashed, green!50!black, line width=0.6pt, forget plot] {1.0};
+
+\addplot[fill=black!40, draw=white, line width=0.3pt] coordinates {
+  (1, 2.4496)
+  (2, 0.2844)
+  (3, 7.0121)
+  (4, 0.0022)
+  (5, 0.3663)
+};
+\addlegendentry{glibc}
+\addplot[fill=blue!55, draw=white, line width=0.3pt] coordinates {
+  (1, 2.7043)
+  (2, 0.0379)
+  (3, 10.9231)
+  (4, 0.003)
+  (5, 0.0965)
+};
+\addlegendentry{jemalloc}
+\addplot[fill=yellow!60!orange, draw=white, line width=0.3pt] coordinates {
+  (1, 5.2705)
+  (2, 0.2537)
+  (3, 18.6503)
+  (4, 0.0036)
+  (5, 0.4658)
+};
+\addlegendentry{tcmalloc}
+\addplot[fill=green!50!black, draw=white, line width=0.3pt] coordinates {
+  (1, 2.5451)
+  (2, 0.2286)
+  (3, 7.1872)
+  (4, 0.0032)
+  (5, 0.4193)
+};
+\addlegendentry{mimalloc}
+\addplot[fill=violet!60, draw=white, line width=0.3pt] coordinates {
+  (1, 2.5238)
+  (2, 0.2404)
+  (3, 7.1434)
+  (4, 0.0024)
+  (5, 0.3058)
+};
+\addlegendentry{first\_fit}
+\addplot[fill=orange!70, draw=white, line width=0.3pt] coordinates {
+  (1, 2.3664)
+  (2, 0.2219)
+  (3, 7.1434)
+  (4, 0.0025)
+  (5, 0.2908)
+};
+\addlegendentry{best\_fit}
+\addplot[fill=red!60, draw=white, line width=0.3pt] coordinates {
+  (1, 7.5609)
+  (2, 0.2754)
+  (3, 8.3109)
+  (4, 0.0024)
+  (5, 0.4657)
+};
+\addlegendentry{worst\_fit}
+\end{axis}
+\end{tikzpicture}
+\begin{tikzpicture}[font=\footnotesize\sffamily]
+\begin{axis}[
+    width=0.48\textwidth, height=6cm,
+    ybar, bar width=3.5pt,
+    ymode=log, log origin=infty,
+    ylabel={Throughput (ops/sec, log scale)},
+    xtick=data,
+    xticklabels={
+Churn, {Random\\Mix}, {Small\\Objs}, {Large\\Blocks}, {Frag\\Stress}
+},
+    xticklabel style={align=center, text width=1.8cm, font=\scriptsize},
+    ymin=50000, ymax=50000000,
+    legend style={at={(0.5,1.05)}, anchor=south, legend columns=4, font=\tiny, draw=none},
+    grid=major, grid style={dotted, gray!30},
+]
+
+\addplot[fill=black!40, draw=white, line width=0.3pt] coordinates {
+  (1, 15620554)
+  (2, 2331356)
+  (3, 15416159)
+  (4, 953043)
+  (5, 3804719)
+};
+\addlegendentry{glibc}
+\addplot[fill=blue!55, draw=white, line width=0.3pt] coordinates {
+  (1, 16456565)
+  (2, 5101048)
+  (3, 27397110)
+  (4, 1836819)
+  (5, 9412004)
+};
+\addlegendentry{jemalloc}
+\addplot[fill=yellow!60!orange, draw=white, line width=0.3pt] coordinates {
+  (1, 25735685)
+  (2, 3849480)
+  (3, 28433688)
+  (4, 8173374)
+  (5, 8930134)
+};
+\addlegendentry{tcmalloc}
+\addplot[fill=green!50!black, draw=white, line width=0.3pt] coordinates {
+  (1, 17117509)
+  (2, 4059891)
+  (3, 27537703)
+  (4, 2057370)
+  (5, 4361040)
+};
+\addlegendentry{mimalloc}
+\addplot[fill=violet!60, draw=white, line width=0.3pt] coordinates {
+  (1, 5416208)
+  (2, 254109)
+  (3, 12233351)
+  (4, 277404)
+  (5, 1032401)
+};
+\addlegendentry{first\_fit}
+\addplot[fill=orange!70, draw=white, line width=0.3pt] coordinates {
+  (1, 6737470)
+  (2, 269089)
+  (3, 18919793)
+  (4, 341041)
+  (5, 2511529)
+};
+\addlegendentry{best\_fit}
+\addplot[fill=red!60, draw=white, line width=0.3pt] coordinates {
+  (1, 610625)
+  (2, 172625)
+  (3, 252146)
+  (4, 323651)
+  (5, 126419)
+};
+\addlegendentry{worst\_fit}
+\end{axis}
+\end{tikzpicture}
