@@ -186,6 +186,48 @@ Lifetime Aware Allocator Design
                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     ```
     像是这里的 `NULL` 其实就是用来传递虚拟地址的.(NULL 表示系统"随意")
-    "as fragmentation of virtual memory is not a concern" 也不用担心虚拟内存的分配问题.
+    "as fragmentation of virtual memory is not a concern" 也不用担心虚拟内存的碎片分配问题.
     2. 利用 64 位大虚拟地址空间划分 16 GB 区域（LC Regions）,直接在虚拟地址实现不同life-time class 的分离.
+
+    3. 通过 open-avtivate-free 三种状态实现巨页管理.
+
+    通过回收块来降低碎片率以及一些调整措施:
+    具体的策略和实践方案就是: 
+    - 大块放到 lr + 1 级别的生命周期 huge page 里面去.
+    - 小块放到 最高生命周期的 huge page 的 free block 里面去(减少碎片).
+
+    我们确实尝试动态调整`deadline` 以此来避免出现预判的错误.
+    具体的流程图就是:
+                                            【巨页填满变 Active】
+                    设置初始 Deadline (K × LC)
+                              │
+                    ┌─────────┴────────────────────────────────────────────┐
+             【Deadline 到期】                                      【Deadline 未到】
+                    │                                                      │
+         ┌──────────┴──────────┐                                 ┌─────────┴────────────────────────┐
+   【依然有 Residual 块】 【全都是 Non-Residual 块】    【 所有 Block 全空】                【部分 Block 空闲】
+         │                     │                                 │                                  │
+         ▼                     ▼                                 ▼                                  ▼
+   【低估处理】           【高估处理】                      【整页释放】                    【回收 (Recycle)】
+  巨页 LC 提升一阶        巨页 LC 降低一阶                  立刻退还给 OS                   把空块借给更短 LC 对象
+ 重新计算 Deadline        转正为 Residual
+                          重新计算 Deadline
+这个就是基本的tolerate mis-prediction 的策略, 总是在不断的升阶或者降阶.
+
+数据结构与实现
+使用存活位图和残留位图实现, 即双位图机制实现, 就是在 16GB 区域的开头放置这两个存储了 huge pages 信息的 bitmap, 每个是 256bits 大小, 其中:
+存活位图 `1` 表示 存活，`0` 表示 free 了, 而残留位图就是表示是 residual 还是 non-residual, `1` 表示 是 residual ,`0` 则表示是non-residual或者空块
+
+这个属于很巧妙的结构了,只要通过位运算就可以知道block 的信息.
+
+**about the lines**
+
+具体的就是一些line 的管理信息(似乎看起来非常麻烦)
+under-preficted vs over-predicted , which one is more serious ?
+"We use maximum because the allocator is more resilient to under-predicted lifetimes than over-predicted lifetimes"
+然而,我简直是无法理解这句话中提到的联系...
+
+Implementation details 
+
+ 
 

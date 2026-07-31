@@ -1,0 +1,182 @@
+\documentclass[tikz,border=12pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{
+  arrows.meta,
+  positioning,
+  shapes.geometric,
+  fit,
+  backgrounds,
+  calc,
+  decorations.pathreplacing,
+}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\setmainfont{SimHei}[
+  Path = /home/quest/.local/share/fonts/,
+  Extension = .ttf,
+  UprightFont = simhei,
+]
+
+% ── Colors ──────────────────────────────────────────
+\definecolor{cActive}{HTML}{2563EB}
+\definecolor{cExpired}{HTML}{DC2626}
+\definecolor{cNotExpired}{HTML}{059669}
+\definecolor{cUnder}{HTML}{EA580C}
+\definecolor{cOver}{HTML}{7C3AED}
+\definecolor{cRelease}{HTML}{0891B2}
+\definecolor{cRecycle}{HTML}{CA8A04}
+\definecolor{cBg}{HTML}{F8FAFC}
+\definecolor{cBorder}{HTML}{CBD5E1}
+
+\begin{document}
+\begin{tikzpicture}[
+  % ── Node styles ──
+  root/.style={
+    rectangle, draw=cActive!70, fill=cActive!15, rounded corners=6pt,
+    font=\bfseries\small, align=center, minimum width=5.2cm, minimum height=1.2cm,
+    line width=1.2pt,
+  },
+  decision/.style={
+    rectangle, draw=#1!70, fill=#1!12, rounded corners=5pt,
+    font=\bfseries\small, align=center, minimum width=3.8cm, minimum height=1.0cm,
+    line width=1.1pt,
+  },
+  terminal/.style={
+    rectangle, draw=#1!70, fill=#1!20, rounded corners=5pt,
+    font=\bfseries\small, align=center, minimum width=4.0cm, minimum height=1.2cm,
+    line width=1.2pt,
+  },
+  detail/.style={
+    font=\footnotesize, align=center, text=#1!80!black,
+  },
+  arrow/.style={->, >=Stealth, thick, rounded corners=2pt},
+  arrowline/.style={->, >=Stealth, very thick, line width=1.6pt, rounded corners=3pt},
+  every node/.style={font=\sffamily},
+]
+
+% ══════════════════════════════════════════════════════════
+% LEVEL 0 — Root: 巨页填满变 Active
+% ══════════════════════════════════════════════════════════
+\node[root] (root) at (0, 0) {
+  \textbf{巨页填满 → 变为 Active}\\[3pt]
+  \normalsize 设置初始 Deadline = \(K \times\) LC
+};
+
+% ══════════════════════════════════════════════════════════
+% LEVEL 1 — Deadline 是否到期?
+% ══════════════════════════════════════════════════════════
+\node[decision=cExpired, below=2.4cm of root, xshift=-5.2cm] (expired) {
+  \textbf{Deadline 到期}
+};
+\node[decision=cNotExpired, below=2.4cm of root, xshift=5.2cm] (notexpired) {
+  \textbf{Deadline 未到}
+};
+
+\draw[arrow, cExpired!70] (root.south) -- ++(0, -0.6) -| (expired.north)
+  node[pos=0.85, left, font=\scriptsize, text=cExpired!80] {时间流逝};
+\draw[arrow, cNotExpired!70] (root.south) -- ++(0, -0.6) -| (notexpired.north);
+
+% ══════════════════════════════════════════════════════════
+% LEVEL 2 — 到期后的分支
+% ══════════════════════════════════════════════════════════
+\node[decision=cUnder, below=2.2cm of expired, xshift=-3.0cm] (residual) {
+  \textbf{依然有}\\[-2pt]
+  \textbf{Residual 块}
+};
+\node[decision=cOver, below=2.2cm of expired, xshift=3.0cm] (nonresidual) {
+  \textbf{全都是}\\[-2pt]
+  \textbf{Non-Residual 块}
+};
+
+\draw[arrow, cExpired!70] (expired.south) -- ++(0, -0.5) -| (residual.north);
+\draw[arrow, cExpired!70] (expired.south) -- ++(0, -0.5) -| (nonresidual.north);
+
+% Labels on split
+\node[font=\scriptsize\itshape, text=cExpired!70, above=0.05cm of residual.north east, xshift=0.8cm]
+  {还有对象存活};
+\node[font=\scriptsize\itshape, text=cOver!70, above=0.05cm of nonresidual.north west, xshift=-0.8cm]
+  {对象已全死};
+
+% ══════════════════════════════════════════════════════════
+% LEVEL 2 — 未到期的分支
+% ══════════════════════════════════════════════════════════
+\node[decision=cRelease, below=2.2cm of notexpired, xshift=-3.0cm] (allfree) {
+  \textbf{所有 Block}\\[-2pt]
+  \textbf{全空}
+};
+\node[decision=cRecycle, below=2.2cm of notexpired, xshift=3.0cm] (partfree) {
+  \textbf{部分 Block}\\[-2pt]
+  \textbf{空闲}
+};
+
+\draw[arrow, cNotExpired!70] (notexpired.south) -- ++(0, -0.5) -| (allfree.north);
+\draw[arrow, cNotExpired!70] (notexpired.south) -- ++(0, -0.5) -| (partfree.north);
+
+% ══════════════════════════════════════════════════════════
+% LEVEL 3 — 四个终结动作
+% ══════════════════════════════════════════════════════════
+\node[terminal=cUnder, below=2.2cm of residual] (underAction) {
+  \textbf{【低估处理】}\\[3pt]
+  \footnotesize 巨页 LC 提升一阶\\
+  \footnotesize 重新计算 Deadline
+};
+
+\node[terminal=cOver, below=2.2cm of nonresidual] (overAction) {
+  \textbf{【高估处理】}\\[3pt]
+  \footnotesize 巨页 LC 降低一阶\\
+  \footnotesize 转正为 Residual · 重新计算 Deadline
+};
+
+\node[terminal=cRelease, below=2.2cm of allfree] (releaseAction) {
+  \textbf{【整页释放】}\\[3pt]
+  \footnotesize 立刻退还给 OS
+};
+
+\node[terminal=cRecycle, below=2.2cm of partfree] (recycleAction) {
+  \textbf{【回收 (Recycle)】}\\[3pt]
+  \footnotesize 把空块借给更短 LC 对象
+};
+
+\draw[arrowline, cUnder!70]  (residual)    -- (underAction);
+\draw[arrowline, cOver!70]   (nonresidual) -- (overAction);
+\draw[arrowline, cRelease!70] (allfree)    -- (releaseAction);
+\draw[arrowline, cRecycle!70] (partfree)   -- (recycleAction);
+
+% ══════════════════════════════════════════════════════════
+% Phase labels on the left
+% ══════════════════════════════════════════════════════════
+\node[font=\small\bfseries, text=cExpired!80, anchor=east] at ($(expired.west) + (-1.8, 0)$)
+  {分支 A};
+\node[font=\small\bfseries, text=cNotExpired!80, anchor=east] at ($(notexpired.west) + (-1.8, 0)$)
+  {分支 B};
+
+% ══════════════════════════════════════════════════════════
+% Dashed feedback loop — 重新计算 Deadline
+% ══════════════════════════════════════════════════════════
+\draw[->, >=Stealth, dashed, thick, cUnder!60,
+      rounded corners=8pt]
+  (underAction.east) --
+  ++(1.4, 0) |-
+  ($(root.east) + (0.4, 0)$)
+  node[pos=0.92, right, font=\footnotesize\itshape, text=cUnder!70]
+     {循环反馈};
+
+\draw[->, >=Stealth, dashed, thick, cOver!60,
+      rounded corners=8pt]
+  (overAction.west) --
+  ++(-1.4, 0) |-
+  ($(root.west) + (-0.4, 0)$)
+  node[pos=0.92, left, font=\footnotesize\itshape, text=cOver!70]
+     {循环反馈};
+
+% ══════════════════════════════════════════════════════════
+% Background box for the whole figure
+% ══════════════════════════════════════════════════════════
+\begin{scope}[on background layer]
+  \node[draw=cBorder, fill=cBg, rounded corners=14pt,
+        inner sep=18pt,
+        fit=(root)(underAction)(overAction)(releaseAction)(recycleAction)] (frame) {};
+\end{scope}
+
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,135 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% ── Packages ──────────────────────────────────────────
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+% ── Metadata ──────────────────────────────────────────
+\title{\textbf{旋转圆盘双物块连接模型中的角速度临界演化分析}}
+\author{@TrunkTrick}
+\date{}
+
+% ── Styling ───────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue,
+}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\small 旋转圆盘双物块连接模型中的角速度临界演化分析}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\rule{0.8\textwidth}{0.4pt}
+\end{center}
+
+\begin{abstract}
+\noindent 本文针对高中物理经典``水平旋转圆盘--轻绳--双物块''动力学模型，系统推导了随转动角速度 $\omega$ 缓慢递增过程中，系统依次经历的三种典型临界状态。本文通过建立单体向心力方程与静摩擦力边界条件，给出了三种临界角速度的通用解析表达。
+\end{abstract}
+
+\section{物理模型与基本方程}
+
+设水平圆盘上有质点 $A$ 和 $B$，质量分别为 $m_A, m_B$，转动半径分别为 $r_A, r_B$，与圆盘间的动摩擦因数均为 $\mu$。两物块用不可伸长的轻绳跨过圆心连结（异侧模型）。
+
+在系统相对圆盘静止时，建立沿径向的向心力方程（取指向圆心方向为正）：
+
+\begin{equation}
+\begin{cases}
+f_A + T = m_A \omega^2 r_A \\[6pt]
+f_B + T = m_B \omega^2 r_B
+\end{cases}
+\end{equation}
+
+静摩擦力的物理极限条件为：
+
+\begin{equation}
+-\mu m g \le f \le \mu m g
+\end{equation}
+
+若 $r_A > r_B$（以 $m_A = m_B = m$ 为例），物块 $A$ 维持圆周运动所需的向心力始终大于物块 $B$。随角速度 $\omega$ 从零开始缓慢增大，系统将依次经历以下\textbf{三种临界状态}。
+
+\section{依次出现的三种临界情况}
+
+\subsection{临界情况一：绳子刚要产生拉力（张力萌生）}
+
+\begin{description}[leftmargin=1.5cm,style=nextline]
+  \item[物理机制] 当角速度较小时，两物块各自依靠自身的静摩擦力维持圆周运动，绳子处于松弛状态（$T = 0$）。随着 $\omega$ 增大，半径较大（或临界角速度较小）的物块 $A$ 率先达到最大静摩擦力，绳子即将被拉紧。
+  \item[临界条件] $f_A = \mu m_A g$，$T = 0$。
+  \item[代数推导]
+  \begin{equation}
+  \mu m_A g = m_A \omega_1^2 r_A
+  \end{equation}
+  \item[临界角速度]
+  \begin{equation}
+  \boxed{\omega_1 = \sqrt{\frac{\mu g}{r_A}}}
+  \end{equation}
+\end{description}
+
+\subsection{临界情况二：物块 $B$ 的静摩擦力刚好为零（受力反转）}
+
+\begin{description}[leftmargin=1.5cm,style=nextline]
+  \item[物理机制] 当 $\omega > \omega_1$ 时，绳子产生拉力 $T$。对于物块 $B$，向内的拉力 $T$ 逐渐增大使物块 $B$ 所需的静摩擦力 $f_B$ 逐渐减小。当拉力 $T$ 刚好等于物块 $B$ 所需的向心力时，物块 $B$ 受到的静摩擦力降为零。
+  \item[临界条件] $f_A = \mu m_A g$，$f_B = 0$。
+  \item[代数推导]
+  \begin{equation}
+  \begin{cases}
+  \mu m_A g + T = m_A \omega_2^2 r_A \\[6pt]
+  T = m_B \omega_2^2 r_B
+  \end{cases}
+  \end{equation}
+  消去 $T$ 得：
+  \begin{equation}
+  \mu m_A g = \omega_2^2 (m_A r_A - m_B r_B)
+  \end{equation}
+  \item[临界角速度]
+  \begin{equation}
+  \boxed{\omega_2 = \sqrt{\frac{\mu m_A g}{m_A r_A - m_B r_B}}}
+  \end{equation}
+\end{description}
+
+\subsection{临界情况三：系统刚好发生相对滑动（整体失稳）}
+
+\begin{description}[leftmargin=1.5cm,style=nextline]
+  \item[物理机制] 当 $\omega > \omega_2$ 时，绳子拉力进一步增大，物块 $B$ 受到的静摩擦力反向（背离圆心）。当 $\omega$ 增大到使物块 $B$ 的反向静摩擦力也达到最大值时，系统静摩擦力潜能全部耗尽，两物块即将相对圆盘发生滑动（向 $A$ 的一侧滑动）。
+  \item[临界条件] $f_A = \mu m_A g$（指向圆心），$f_B = -\mu m_B g$（背离圆心）。
+  \item[代数推导]
+  \begin{equation}
+  \begin{cases}
+  \mu m_A g + T = m_A \omega_3^2 r_A \\[6pt]
+  -\mu m_B g + T = m_B \omega_3^2 r_B
+  \end{cases}
+  \end{equation}
+  两式相减消去 $T$ 得：
+  \begin{equation}
+  \mu m_A g + \mu m_B g = \omega_3^2 (m_A r_A - m_B r_B)
+  \end{equation}
+  \item[临界角速度]
+  \begin{equation}
+  \boxed{\omega_3 = \sqrt{\frac{\mu (m_A + m_B) g}{m_A r_A - m_B r_B}}}
+  \end{equation}
+\end{description}
+
+\section*{结论}
+
+本文系统分析了旋转圆盘--轻绳--双物块系统在角速度缓慢增大过程中依次经历的三种临界状态，并给出了各自的临界角速度解析表达式：
+
+\begin{align}
+\omega_1 &= \sqrt{\frac{\mu g}{r_A}} \quad &\text{（张力萌生）} \\[8pt]
+\omega_2 &= \sqrt{\frac{\mu m_A g}{m_A r_A - m_B r_B}} \quad &\text{（受力反转）} \\[8pt]
+\omega_3 &= \sqrt{\frac{\mu (m_A + m_B) g}{m_A r_A - m_B r_B}} \quad &\text{（整体失稳）}
+\end{align}
+
+三者满足关系：$\omega_1 < \omega_2 < \omega_3$。该分析为理解转动非惯性系中摩擦力与张力的耦合临界行为提供了完整的理论框架。
+
+\end{document}

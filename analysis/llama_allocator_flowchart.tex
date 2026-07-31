@@ -1,0 +1,300 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{
+  arrows.meta,
+  positioning,
+  shapes.geometric,
+  shapes.multipart,
+  fit,
+  backgrounds,
+  calc,
+  chains,
+  decorations.pathreplacing,
+  shadows.blur
+}
+
+\usepackage{fontspec}
+% Use SimHei (黑体) which is available on this system
+\setmainfont{SimHei}
+  [Path = /home/quest/.local/share/fonts/,
+   Extension = .ttf,
+   UprightFont = simhei]
+\usepackage{xcolor}
+
+% Color palette
+\definecolor{phaseBlue}{HTML}{2563EB}
+\definecolor{phaseGreen}{HTML}{059669}
+\definecolor{phaseOrange}{HTML}{EA580C}
+\definecolor{phasePurple}{HTML}{7C3AED}
+\definecolor{phaseRed}{HTML}{DC2626}
+\definecolor{bgGray}{HTML}{F8FAFC}
+\definecolor{borderGray}{HTML}{CBD5E1}
+\definecolor{textDark}{HTML}{1E293B}
+\definecolor{textLight}{HTML}{64748B}
+\definecolor{boxBlue}{HTML}{DBEAFE}
+\definecolor{boxGreen}{HTML}{D1FAE5}
+\definecolor{boxOrange}{HTML}{FFEDD5}
+\definecolor{boxPurple}{HTML}{EDE9FE}
+\definecolor{boxRed}{HTML}{FEE2E2}
+\definecolor{boxGray}{HTML}{F1F5F9}
+\definecolor{boxYellow}{HTML}{FEF9C3}
+\definecolor{boxPink}{HTML}{FCE7F3}
+
+\begin{document}
+\begin{tikzpicture}[
+  % --- Common styles ---
+  node distance=6mm and 10mm,
+  % Phase container
+  phasebox/.style={
+    rectangle, draw=#1!40, fill=#1!8, rounded corners=8pt,
+    line width=1.2pt, inner sep=10pt,
+  },
+  % Title box
+  titlebox/.style={
+    rectangle, draw=none, fill=#1, rounded corners=6pt,
+    text=white, font=\bfseries\large, inner sep=8pt,
+  },
+  % Process node (rectangle)
+  proc/.style={
+    rectangle, draw=#1!60, fill=#1!25, rounded corners=4pt,
+    text=textDark, font=\footnotesize, align=center,
+    minimum width=2.6cm, minimum height=0.9cm,
+    line width=0.8pt,
+  },
+  % Wide process node
+  procwide/.style={
+    rectangle, draw=#1!60, fill=#1!25, rounded corners=4pt,
+    text=textDark, font=\footnotesize, align=center,
+    minimum width=3.2cm, minimum height=0.9cm,
+    line width=0.8pt,
+  },
+  % Narrow process
+  procnarrow/.style={
+    rectangle, draw=#1!60, fill=#1!25, rounded corners=4pt,
+    text=textDark, font=\footnotesize, align=center,
+    minimum width=2.0cm, minimum height=1.1cm,
+    line width=0.8pt,
+  },
+  % Data node (cylinder / document shape)
+  datanode/.style={
+    rectangle, draw=gray!60, fill=boxGray, rounded corners=3pt,
+    text=textDark, font=\footnotesize, align=center,
+    minimum width=2.2cm, minimum height=0.8cm,
+    line width=0.7pt,
+  },
+  % Arrow
+  arrow/.style={
+    ->, >=Stealth, thick, color=#1!70, rounded corners=3pt,
+  },
+  % Bidirectional arrow
+  biarrow/.style={
+    <->, >=Stealth, thick, color=#1!70, rounded corners=3pt,
+  },
+  % Group brace
+  brace/.style={
+    decorate, decoration={brace, amplitude=8pt, mirror},
+    thick, color=#1!60,
+  },
+  % Label on arrow
+  arlabel/.style={
+    font=\scriptsize\itshape, fill=white, inner sep=1.5pt,
+    text=textLight,
+  },
+  every node/.style={font=\sffamily},
+]
+
+% ======================================================================
+% TITLE
+% ======================================================================
+\node[font=\Huge\bfseries, text=textDark] (title) at (0, 1.8)
+  {Llama: Learning-based Memory Allocator Overview};
+
+% ======================================================================
+% PHASE 1 — Sampling-based Data Collection
+% ======================================================================
+\node[phasebox=phaseBlue,
+      minimum width=15.5cm, minimum height=5.8cm]
+     (p1box) at (0, -6.5) {};
+\node[titlebox=phaseBlue, above=2mm] at (p1box.north)
+      {Phase 1: Sampling-based Data Collection};
+
+% --- Nodes inside Phase 1 ---
+\node[proc=phaseBlue] (attach) at ($(p1box.west)+(2.8, 0.8)$)
+      {Periodically Attach\\to Application};
+\node[proc=phaseBlue, right=of attach] (allocHook)
+      {Allocation Hook\\(malloc interposition)};
+\node[proc=phaseBlue, below=of allocHook] (freeHook)
+      {Deallocation Hook\\(free interposition)};
+\node[datanode, right=of allocHook] (hash1)
+      {Hash Table\\(addr → stack trace,\\timestamp, size, CPU)};
+\node[proc=phaseBlue, right=of hash1] (dedup)
+      {Deduplication\\\& Distribution Stats\\(min, max, count,\\sum, \(\sum x^2\))};
+\node[datanode, right=of dedup] (proto)
+      {Protocol Buffer\\(protobuf)\\[2pt]\scriptsize serialized to disk};
+
+% Arrows Phase 1
+\draw[arrow=phaseBlue] (attach) -- (allocHook);
+\draw[arrow=phaseBlue] (attach) -- (freeHook);
+\draw[arrow=phaseBlue] (allocHook) -- (hash1);
+\draw[arrow=phaseBlue] (freeHook) -- (hash1);
+\draw[arrow=phaseBlue] (hash1) -- (dedup);
+\draw[arrow=phaseBlue] (dedup) -- (proto);
+
+% Brace for hook pair
+\draw[brace=phaseBlue]
+  ($(allocHook.north west)+(-0.15,0.15)$) --
+  node[left=3pt, font=\footnotesize\itshape, text=phaseBlue]
+     {paired} ($(freeHook.south west)+(-0.15,-0.15)$);
+
+% Labels
+\node[font=\scriptsize\bfseries, text=phaseBlue, above=0mm of hash1]
+  {records stack trace \& metadata};
+
+% ======================================================================
+% PHASE 2 — LSTM Lifetime Prediction
+% ======================================================================
+\node[phasebox=phaseGreen,
+      minimum width=15.5cm, minimum height=7.0cm]
+     (p2box) at (0, -14.4) {};
+\node[titlebox=phaseGreen, above=2mm] at (p2box.north)
+      {Phase 2: Lifetime Prediction Model (LSTM)};
+
+% --- Nodes inside Phase 2 ---
+\node[proc=phaseGreen] (tokenize) at ($(p2box.west)+(2.5, 1.6)$)
+      {Tokenization\\(split by \texttt{, :: @})\\[2pt]\scriptsize function names → tokens};
+
+\node[proc=phaseGreen, right=of tokenize] (vocab)
+      {Vocabulary\\(Top 5000 tokens)\\[2pt]\scriptsize rare tokens → UNK};
+
+\node[proc=phaseGreen, right=of vocab] (embed)
+      {Word Embedding\\(\(d=32\) dim vector)\\[2pt]\scriptsize \(\mathbf{A} \in \mathbb{R}^{|V|\times 32}\)};
+
+\node[proc=phaseGreen, below=of embed] (lstm)
+      {LSTM Network\\[2pt]\scriptsize single-layer, hidden=64\\input: stack frame sequence\\output: last hidden state};
+
+\node[proc=phaseGreen, below=of lstm] (softmax)
+      {Softmax + Cross-Entropy\\[2pt]\scriptsize 8 lifetime classes\\\(\le 10\text{ms}, 100\text{ms}, 1\text{s}, 10\text{s}, \dots\)};
+
+\node[proc=phaseGreen, left=of softmax] (xla)
+      {XLA Compilation\\[2pt]\scriptsize TF model → C++ code\\statically linked};
+
+\node[proc=phaseGreen, left=of xla] (inference)
+      {Per-Thread Inference\\[2pt]\scriptsize TLS buffers (multiple copies)\\read-only shared weights};
+
+% Arrows Phase 2
+\draw[arrow=phaseGreen] (tokenize) -- (vocab);
+\draw[arrow=phaseGreen] (vocab) -- (embed);
+\draw[arrow=phaseGreen] (embed) -- (lstm);
+\draw[arrow=phaseGreen] (lstm) -- (softmax);
+\draw[arrow=phaseGreen] (softmax) -- (xla);
+\draw[arrow=phaseGreen] (xla) -- (inference);
+
+% Training sub-box
+\node[phasebox=boxGreen, inner sep=4pt,
+      fit=(tokenize)(vocab)(embed)(lstm)(softmax),
+      label={[font=\footnotesize\bfseries, text=phaseGreen]north west:Training Pipeline}]
+     {};
+
+% Inference sub-box
+\node[phasebox=boxGreen!50, inner sep=5pt,
+      fit=(xla)(inference),
+      label={[font=\footnotesize\bfseries, text=phaseGreen!80]north west:Deployment (Inference)}]
+     {};
+
+% ======================================================================
+% PHASE 3 — Lifetime-Aware Allocator
+% ======================================================================
+\node[phasebox=phaseOrange,
+      minimum width=15.5cm, minimum height=9.2cm]
+     (p3box) at (0, -24.2) {};
+\node[titlebox=phaseOrange, above=2mm] at (p3box.north)
+      {Phase 3: Lifetime-Aware Allocator Design};
+
+% --- Nodes inside Phase 3 ---
+% Left column: hierarchy
+\node[proc=phaseOrange] (lcRegions) at ($(p3box.west)+(2.8, 2.2)$)
+      {16 GB Virtual Regions\\per Lifetime Class (LC)\\[2pt]\scriptsize 64-bit VA space is abundant};
+
+\node[proc=phaseOrange, below=of lcRegions] (hugePage)
+      {Huge Page (2 MB)\\[2pt]\scriptsize continuous phys. memory\\1 TLB entry → 2 MB};
+
+\node[proc=phaseOrange, below=of hugePage] (block)
+      {Block (8 KB)\\[2pt]\scriptsize tracks liveness\\within a huge page};
+
+\node[proc=phaseOrange, below=of block] (line)
+      {Line (128 B)\\[2pt]\scriptsize allocation unit};
+
+% Right column: states & recovery
+\node[procwide=phaseRed, right=of hugePage, xshift=1.4cm] (states)
+      {3-State Huge Page Lifecycle\\[2pt]\small\textbf{Open} \(\rightarrow\) \textbf{Activate} \(\rightarrow\) \textbf{Free}};
+
+\node[procwide=phasePurple, below=of states] (recovery)
+      {Mis-prediction Recovery\\[2pt]\begin{tabular}{c}
+      \textbf{deadline exceeded, still alive}\\
+      \(\Rightarrow\) promote to higher LC\\
+      \textbf{all freed before deadline}\\
+      \(\Rightarrow\) demote to lower LC
+      \end{tabular}};
+
+\node[procwide=phaseOrange, below=of recovery] (strategy)
+      {Defragmentation Strategy\\[2pt]\begin{tabular}{c}
+      large objects \(\rightarrow\) LC\(+1\) huge pages\\
+      small objects \(\rightarrow\) highest LC free blocks
+      \end{tabular}};
+
+% Arrows Phase 3 - hierarchy
+\draw[arrow=phaseOrange] (lcRegions) -- (hugePage);
+\draw[arrow=phaseOrange] (hugePage) -- (block);
+\draw[arrow=phaseOrange] (block) -- (line);
+
+% Arrows Phase 3 - states
+\draw[arrow=phaseRed] (hugePage.east) -- (states.west);
+\draw[arrow=phasePurple] (states) -- (recovery);
+\draw[arrow=phaseOrange] (recovery) -- (strategy);
+
+% Feedback loop
+\draw[arrow=phasePurple, dashed]
+  (recovery.east) --
+  ++(1.2, 0) |-
+  (hugePage.east)
+  node[pos=0.85, right, font=\scriptsize\itshape, text=phasePurple]
+     {adjust LC level};
+
+% ======================================================================
+% INTER-PHASE ARROWS
+% ======================================================================
+\draw[arrow=blue, line width=1.5pt]
+  ($(p1box.south)+(0,-0.3)$) --
+  ($(p2box.north)+(0,0.3)$)
+  node[pos=0.5, right, font=\footnotesize\bfseries, text=blue]
+     {training data};
+
+\draw[arrow=green!60!black, line width=1.5pt]
+  ($(p2box.south)+(0,-0.3)$) --
+  ($(p3box.north)+(0,0.3)$)
+  node[pos=0.5, right, font=\footnotesize\bfseries, text=green!60!black]
+     {LC prediction at allocation time};
+
+% ======================================================================
+% KEY INVARIANTS (bottom note)
+% ======================================================================
+\node[below=8mm of p3box.south,
+      font=\small\bfseries, text=textDark, align=center]
+     (invariant)
+     {\textbf{Key Invariants}\\[3pt]
+      \begin{tabular}{c}
+      • A Block is only filled with objects of one predicted LC \\
+      • A Block's LC only tolerates over-prediction (longer-lived than predicted) \\
+      • Allocator uses \textbf{only} Huge Pages — never splits to 4 KB pages \\
+      • Same-LC objects co-locate → almost simultaneous death → entire page recycled at once
+      \end{tabular}};
+
+% ======================================================================
+% LEGEND
+% ======================================================================
+\node[phasebox=boxGray, inner sep=6pt,
+      fit=(invariant),
+      ] {};
+
+\end{tikzpicture}
+\end{document}
